@@ -369,9 +369,20 @@ elif page == "5. ⚡ 'What-If' Chaos Simulator":
 
     col_c1, col_c2 = st.columns([2, 1])
     with col_c1:
+        # Dynamically query available systems from FalkorDB
+        sys_options = []
+        try:
+            res_sys = db_manager.get_graph().query("MATCH (s:System) RETURN s.id ORDER BY s.id")
+            if res_sys.result_set:
+                sys_options = [r[0] for r in res_sys.result_set]
+        except Exception:
+            pass
+        if not sys_options:
+            sys_options = ["SYS-AUTH-01", "SYS-PAY-02", "SYS-DATA-03", "SYS-MON-04"]
+
         target_sys = st.selectbox(
             "Select Target System to Simulate Failure",
-            ["SYS-AUTH-01", "SYS-PAY-02", "SYS-DATA-03", "SYS-GATEWAY"]
+            sys_options
         )
     with col_c2:
         kill_btn = st.button("💥 Simulate System Crash (Pre-Mortem)", type="primary")
@@ -382,25 +393,30 @@ elif page == "5. ⚡ 'What-If' Chaos Simulator":
 
         st.markdown("---")
         st.subheader(f"💥 Pre-Mortem Report for `{target_sys}`")
-        st.markdown(f"### Risk Tier: `{report['risk_tier']}`")
-        st.info(report["pre_mortem_summary"])
-
-        k1, k2, k3, k4 = st.columns(4)
-        with k1:
-            st.metric("Immediate Failures (1-Hop)", report["immediate_hop1_failures"])
-        with k2:
-            st.metric("Secondary Failures (2-Hop)", report["secondary_hop2_failures"])
-        with k3:
-            st.metric("Total Severed Systems", report["total_downstream_systems_impacted"])
-        with k4:
-            st.metric("Cascade Duration", f"{report['estimated_cascade_seconds']}s")
-
-        st.markdown("#### 🚨 Cascading Dependency Impact List")
-        if report["cascading_systems"]:
-            df_casc = pd.DataFrame(report["cascading_systems"])
-            st.dataframe(df_casc, use_container_width=True)
+        
+        if report.get("status") == "NOT_FOUND":
+            st.warning(report.get("pre_mortem_summary", f"System {target_sys} not found in graph."))
         else:
-            st.success("No downstream systems depend on this component. Failure is isolated.")
+            st.markdown(f"### Risk Tier: `{report.get('risk_tier', 'MODERATE')}`")
+            st.info(report.get("pre_mortem_summary", "Simulation completed."))
+
+            k1, k2, k3, k4 = st.columns(4)
+            with k1:
+                st.metric("Immediate Failures (1-Hop)", report.get("immediate_hop1_failures", 0))
+            with k2:
+                st.metric("Secondary Failures (2-Hop)", report.get("secondary_hop2_failures", 0))
+            with k3:
+                st.metric("Total Severed Systems", report.get("total_downstream_systems_impacted", 0))
+            with k4:
+                st.metric("Cascade Duration", f"{report.get('estimated_cascade_seconds', 0)}s")
+
+            st.markdown("#### 🚨 Cascading Dependency Impact List")
+            cascading_systems = report.get("cascading_systems", [])
+            if cascading_systems:
+                df_casc = pd.DataFrame(cascading_systems)
+                st.dataframe(df_casc, use_container_width=True)
+            else:
+                st.success("No downstream systems depend on this component. Failure is isolated.")
 
 # ==============================================================================
 # PAGE 6: REAL-TIME ALERT WEBHOOK INGESTOR

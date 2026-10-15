@@ -24,7 +24,19 @@ class WhatIfSimulator:
         if not target_details:
             return {
                 "status": "NOT_FOUND",
-                "message": f"Target entity '{target_system_id}' was not found in FalkorDB."
+                "target_system": target_system_id,
+                "target_properties": {},
+                "risk_tier": "UNKNOWN (NOT IN GRAPH)",
+                "estimated_cascade_seconds": 0,
+                "immediate_hop1_failures": 0,
+                "secondary_hop2_failures": 0,
+                "tertiary_hop3_failures": 0,
+                "total_downstream_systems_impacted": 0,
+                "cascading_systems": [],
+                "connected_software": [],
+                "past_correlated_events": [],
+                "affected_node_ids": [target_system_id],
+                "pre_mortem_summary": f"Target entity '{target_system_id}' was not found in FalkorDB graph topology."
             }
 
         # 2. Query all downstream dependent systems via incoming DEPENDS_ON
