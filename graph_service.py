@@ -155,6 +155,11 @@ class GraphService:
             "edges": edges_list
         }
 
+    def get_subgraph(self, start_id: str, max_depth: int = 2, depth: Optional[int] = None, limit: int = 30) -> Dict[str, Any]:
+        """Alias for extract_subgraph supporting both depth and max_depth kwargs."""
+        actual_depth = depth if depth is not None else max_depth
+        return self.extract_subgraph(start_id=start_id, depth=actual_depth, limit=limit)
+
     def get_incident_timeline(self) -> List[Dict[str, Any]]:
         """Retrieves ordered sequence of synthetic events and their causal links."""
         graph = self._get_graph()
