@@ -1,9 +1,19 @@
 """
 ContextGraph AI - Streamlit Interactive Simulation Lab.
-A 7-page dark-themed dashboard demonstrating persistent, explainable, graph-powered agent workflows.
+A comprehensive, dark-themed dashboard demonstrating persistent, explainable, graph-powered agent workflows.
+Features:
+1. Simulation Overview
+2. Interactive 2D/3D Graph Canvas (Vis.js physics & glowing paths)
+3. Agent Investigation Lab (with SRE Runbook Generator & 1-Click Post-Mortem Export)
+4. Dual-Agent Debate: Investigator vs Epistemic Auditor
+5. "What-If" Counterfactual Chaos Outage Simulator
+6. Real-Time Alert Webhook Ingestor (Prometheus / Datadog / CloudWatch)
+7. Persistent Memory & Cross-Session Recall
+8. Epistemic Explainability & System Health
 Operates with zero external LLM API keys on top of real FalkorDB storage.
 """
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import json
 import time
@@ -20,9 +30,17 @@ from simulation_engine import simulation_engine
 from agent import agent
 from intent_router import INTENTS
 
+# Unique Extension Services
+from visualizer import generate_network_html
+from whatif_simulator import whatif_simulator
+from remediation_service import remediation_service
+from debate_service import debate_service
+from export_service import export_service
+from webhook_service import webhook_service, SAMPLE_ALERTS
+
 # --- PAGE SETUP ---
 st.set_page_config(
-    page_title="ContextGraph AI — Simulation Lab",
+    page_title="ContextGraph AI — Advanced Agent Lab",
     page_icon="🕸️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -38,38 +56,6 @@ st.markdown("""
         padding: 16px;
         margin-bottom: 12px;
     }
-    .badge-stored-fact {
-        background-color: #1e3a8a;
-        color: #93c5fd;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.85em;
-    }
-    .badge-rule-inference {
-        background-color: #065f46;
-        color: #a7f3d0;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.85em;
-    }
-    .badge-hypothesis {
-        background-color: #78350f;
-        color: #fde68a;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.85em;
-    }
-    .badge-reused {
-        background-color: #4c1d95;
-        color: #ddd6fe;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.85em;
-    }
     .zero-key-badge {
         background-color: #047857;
         color: #ecfdf5;
@@ -77,6 +63,20 @@ st.markdown("""
         border-radius: 6px;
         font-weight: bold;
         display: inline-block;
+        margin-bottom: 12px;
+    }
+    .debate-bubble-investigator {
+        background-color: #1e293b;
+        border-left: 4px solid #38bdf8;
+        padding: 14px 18px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    .debate-bubble-auditor {
+        background-color: #271d3b;
+        border-left: 4px solid #c084fc;
+        padding: 14px 18px;
+        border-radius: 8px;
         margin-bottom: 12px;
     }
 </style>
@@ -102,12 +102,13 @@ page = st.sidebar.radio(
     "Navigation",
     [
         "1. Simulation Overview",
-        "2. Scenario Explorer",
-        "3. Graph Explorer",
-        "4. Agent Investigation",
-        "5. Memory & Sessions",
-        "6. Explainability",
-        "7. System Health"
+        "2. 🔮 Interactive Graph Canvas",
+        "3. 🤖 Agent Investigation Lab",
+        "4. 🤼 Dual-Agent Debate",
+        "5. ⚡ 'What-If' Chaos Simulator",
+        "6. 🔔 Alert Webhook Ingestor",
+        "7. 💾 Memory & Sessions",
+        "8. 🩺 System Health & MCP"
     ]
 )
 
@@ -135,18 +136,22 @@ if page == "1. Simulation Overview":
         sessions = memory_service.list_persistent_sessions(limit=50)
         st.metric("Persistent Sessions", len(sessions))
 
-    st.markdown("### 🌟 Five Integrated Core Capabilities")
-    c1, c2 = st.columns(2)
+    st.markdown("### 🌟 Unique Hackathon Innovations")
+    c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("""
-        1. **Persistent Context Memory:** Store and retrieve session histories, findings, evidence, and decisions through FalkorDB.
-        2. **Connected Reasoning:** Execute real openCypher graph traversals across multi-hop software and system dependencies.
-        3. **Evidence-Based Explainability:** Ground every conclusion in supporting graph paths, provenance, and documented epistemic rules.
+        - 🔮 **2D/3D Interactive Canvas:** Physics-based graph canvas with live blast radius path glowing.
+        - ⚡ **'What-If' Chaos Simulator:** Computes downstream transitive outage cascades before production failures.
         """)
     with c2:
         st.markdown("""
-        4. **Context Reuse Engine:** Distinguish freshly discovered evidence from reused historical context across separate sessions.
-        5. **Deterministic Tool Selection:** Pure Python rule-based agent routing with zero external LLM API key dependencies.
+        - 🛠️ **Autonomous SRE Runbooks:** Synthesizes actionable mitigation commands grounded in FalkorDB nodes.
+        - 🤼 **Dual-Agent Debate:** Investigator and Epistemic Auditor collaborate to eliminate hallucination.
+        """)
+    with c3:
+        st.markdown("""
+        - 📄 **1-Click Post-Mortem:** Generates publication-ready SRE incident reports in Markdown.
+        - 🔔 **Live Alert Webhook:** Ingests raw Prometheus / Datadog alerts directly into the graph.
         """)
 
     st.markdown("---")
@@ -165,192 +170,56 @@ if page == "1. Simulation Overview":
         ])
         st.dataframe(df_sess, use_container_width=True)
     else:
-        st.info("No investigations executed yet. Head to **4. Agent Investigation** to run Event E-101 investigation!")
+        st.info("No investigations executed yet. Head to **3. 🤖 Agent Investigation Lab** to run Event E-101 investigation!")
 
 # ==============================================================================
-# PAGE 2: SCENARIO EXPLORER
+# PAGE 2: INTERACTIVE 2D/3D GRAPH CANVAS (VISUALIZER)
 # ==============================================================================
-elif page == "2. Scenario Explorer":
-    st.title("Scenario Explorer & Deterministic Simulation Engine")
-    st.markdown("Explore synthetic environments and inject reproducible incidents into the graph.")
+elif page == "2. 🔮 Interactive Graph Canvas":
+    st.title("🔮 Interactive Physics-Based Graph Canvas")
+    st.markdown("Explore live topology, inspect nodes, and highlight multi-hop investigation paths in real time.")
 
-    scenario = st.selectbox(
-        "Select Synthetic Scenario",
-        [
-            "Scenario A — Connected Systems Investigation",
-            "Scenario B — Cross-Session Project Context",
-            "Scenario C — Incident Timeline Reconstruction"
-        ]
+    col_v1, col_v2, col_v3 = st.columns([2, 2, 1])
+    with col_v1:
+        root_entity = st.text_input("Root Entity to Center Subgraph", value="SYS-AUTH-01")
+    with col_v2:
+        highlight_input = st.text_input("Entity IDs to Highlight Path (comma-separated)", value="E-101, SYS-AUTH-01, SW-LIBCRYPTO-21, REC-VULN-4401")
+    with col_v3:
+        subgraph_depth = st.slider("Depth", min_value=1, max_value=3, value=2)
+
+    highlights = [h.strip() for h in highlight_input.split(",") if h.strip()]
+
+    # Query subgraph
+    subgraph_data = graph_service.get_subgraph(root_entity, max_depth=subgraph_depth)
+    nodes = subgraph_data.get("nodes", [])
+    edges = subgraph_data.get("edges", [])
+
+    if not nodes:
+        # Fallback to general sample of nodes if root entity has no direct tree
+        stats = graph_service.search_entities("", limit=30)
+        st.warning(f"Root entity '{root_entity}' returned 0 nodes. Showing primary scenario entities.")
+        subgraph_data = graph_service.get_subgraph("E-101", max_depth=2)
+        nodes = subgraph_data.get("nodes", [])
+        edges = subgraph_data.get("edges", [])
+
+    st.markdown(f"**Rendering Canvas:** `{len(nodes)}` nodes, `{len(edges)}` relationships. Drag nodes, scroll to zoom, click for properties.")
+    
+    html_canvas = generate_network_html(
+        nodes=nodes,
+        edges=edges,
+        highlight_node_ids=highlights,
+        highlight_color="#ef4444",
+        height="640px"
     )
-
-    if "Scenario A" in scenario:
-        st.subheader("Scenario A: Systems, Vulnerabilities & Cascading Failures")
-        st.markdown("""
-        An anomaly affects `SYS-AUTH-01`, which relies on software package `LibCrypto-v2.1`. 
-        A synthetic vulnerability `CVE-SYNTH-2026-4401` threatens downstream `SYS-PAY-02`.
-        """)
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.markdown("#### Synthetic Systems & Software")
-            systems = [
-                {"ID": "SYS-AUTH-01", "Name": "Authentication Gateway", "Software": "SW-LIBCRYPTO-21 (LibCrypto 2.1.0)", "Status": "Degraded"},
-                {"ID": "SYS-PAY-02", "Name": "Payment Processing Engine", "Software": "SW-PAYGATE-14 (PayGatewayCore)", "Status": "Impacted"},
-                {"ID": "SYS-DATA-03", "Name": "Customer Vault Database", "Software": "SW-DBSYNC-30 (DbSyncService)", "Status": "Operational"}
-            ]
-            st.table(pd.DataFrame(systems))
-        with col_b:
-            st.markdown("#### Primary Vulnerability & Audit Records")
-            records = [
-                {"ID": "REC-VULN-4401", "Type": "Vulnerability Advisory", "Severity": "HIGH", "Affects": "SW-LIBCRYPTO-21"},
-                {"ID": "REC-LOG-881", "Type": "Audit Log", "Severity": "MEDIUM", "Recorded For": "E-101"},
-                {"ID": "REC-PATCH-102", "Type": "Change Management RFC", "Severity": "LOW", "Status": "PENDING_APPROVAL"}
-            ]
-            st.table(pd.DataFrame(records))
-
-    elif "Scenario B" in scenario:
-        st.subheader("Scenario B: Team, Architecture Documents & Prior Decisions")
-        st.markdown("""
-        Project **Apollo-Syn Context Resilience** contains cross-functional engineers, architecture specifications,
-        and ratified architectural decisions stored in FalkorDB.
-        """)
-        p_col1, p_col2 = st.columns(2)
-        with p_col1:
-            st.markdown("#### Team Members")
-            people = [
-                {"ID": "USR-ALICE", "Name": "Alice Vance", "Role": "Principal Architect"},
-                {"ID": "USR-BOB", "Name": "Bob Chen", "Role": "Staff Security Engineer"},
-                {"ID": "USR-CHARLIE", "Name": "Charlie Diaz", "Role": "Lead SRE"}
-            ]
-            st.table(pd.DataFrame(people))
-        with p_col2:
-            st.markdown("#### Project Assets & Decisions")
-            docs = [
-                {"ID": "DOC-ARCH-01", "Type": "Document", "Title": "Apollo Resilience Architecture Spec"},
-                {"ID": "DEC-001", "Type": "Decision", "Claim": "Adopt graph-native persistent context memory"}
-            ]
-            st.table(pd.DataFrame(docs))
-
-    else:
-        st.subheader("Scenario C: Sequential Incident Chronology")
-        st.markdown("Chronological series of events linked by `LED_TO` relationships.")
-        events = graph_service.get_incident_timeline()
-        if events:
-            df_ev = pd.DataFrame(events)[["event_id", "timestamp", "severity", "event_name", "caused_event_id"]]
-            st.dataframe(df_ev, use_container_width=True)
-
-    st.markdown("---")
-    st.markdown("### ⚡ Predefined Simulation Event Triggers")
-    t_cols = st.columns(4)
-    sim_events = simulation_engine.get_available_events()
-    for idx, evt in enumerate(sim_events):
-        with t_cols[idx % 4]:
-            if st.button(f"▶ {evt['name']}", key=f"btn_{evt['event_id']}"):
-                res = simulation_engine.trigger_event(evt["event_id"])
-                st.success(f"Triggered: {evt['name']} on {evt['affected_system']}")
-
-    st.markdown("---")
-    st.markdown("### 🛡️ Safe Scenario Reset Controls")
-    c_res1, c_res2 = st.columns(2)
-    with c_res1:
-        if st.checkbox("Confirm Scenario A Reset"):
-            if st.button("Reset Scenario A to Baseline"):
-                simulation_engine.reset_scenario("Scenario_A", confirm=True)
-                st.success("Scenario A reset completed.")
-                st.rerun()
-    with c_res2:
-        if st.checkbox("Confirm Complete Graph Reset (All Scenarios)"):
-            if st.button("🚨 Full Database Reset"):
-                simulation_engine.reset_all(confirm=True)
-                st.warning("All scenarios and synthetic entities re-seeded to factory baseline.")
-                st.rerun()
+    components.html(html_canvas, height=660)
 
 # ==============================================================================
-# PAGE 3: GRAPH EXPLORER
+# PAGE 3: AGENT INVESTIGATION LAB & RUNBOOK GENERATOR
 # ==============================================================================
-elif page == "3. Graph Explorer":
-    st.title("Interactive Graph Explorer & Traversal")
-    st.markdown("Inspect entities, direct neighbors, and bounded multi-hop paths queried live from FalkorDB.")
+elif page == "3. 🤖 Agent Investigation Lab":
+    st.title("🤖 Deterministic Agent Investigation Lab")
+    st.markdown("Execute the deterministic graph agent, generate SRE runbooks, and export formal incident post-mortems.")
 
-    tab1, tab2, tab3 = st.tabs(["🔍 Entity Search & Details", "🔗 Direct Neighbors", "🌐 Multi-Hop Path Tracer"])
-
-    with tab1:
-        col_s1, col_s2 = st.columns([3, 1])
-        with col_s1:
-            kw = st.text_input("Search entities by ID or keyword", value="SYS-AUTH-01")
-        with col_s2:
-            lim = st.number_input("Limit", min_value=1, max_value=50, value=15)
-
-        if kw:
-            matches = graph_service.search_entities(kw, limit=lim)
-            if matches:
-                st.markdown(f"Found **{len(matches)}** matching entities:")
-                df_matches = pd.DataFrame([
-                    {"Label": m["label"], "ID": m["id"], "Name / Claim": m["display_name"]}
-                    for m in matches
-                ])
-                st.dataframe(df_matches, use_container_width=True)
-
-                selected_id = st.selectbox("Inspect properties for entity:", [m["id"] for m in matches])
-                if selected_id:
-                    details = graph_service.get_entity_details(selected_id)
-                    st.json(details)
-            else:
-                st.warning(f"No entities found matching '{kw}'.")
-
-    with tab2:
-        n_id = st.text_input("Entity ID to inspect direct connections", value="E-101")
-        if n_id:
-            neighbors = graph_service.find_related_records(n_id, limit=30)
-            if neighbors:
-                st.markdown(f"**{len(neighbors)}** direct connected relationships:")
-                df_neigh = pd.DataFrame([
-                    {
-                        "Source": n["source_id"],
-                        "Direction": n["direction"],
-                        "Relationship": n["relationship"],
-                        "Target ID": n["target_id"],
-                        "Target Label": n["target_label"],
-                        "Target Name": n["target_name"]
-                    }
-                    for n in neighbors
-                ])
-                st.dataframe(df_neigh, use_container_width=True)
-            else:
-                st.info(f"No direct relationships found for '{n_id}'.")
-
-    with tab3:
-        st.markdown("#### Bounded Multi-Hop Path Discovery")
-        c_p1, c_p2, c_p3 = st.columns(3)
-        with c_p1:
-            start_entity = st.text_input("Start Entity ID", value="E-101")
-        with c_p2:
-            end_entity = st.text_input("End Entity ID", value="SW-LIBCRYPTO-21")
-        with c_p3:
-            depth = st.slider("Max Traversal Depth", min_value=1, max_value=3, value=3)
-
-        if st.button("Trace Path in FalkorDB"):
-            paths = graph_service.trace_multi_hop_relationships(start_entity, end_entity, max_depth=depth)
-            if paths:
-                st.success(f"Discovered {len(paths)} qualifying path(s) between `{start_entity}` and `{end_entity}`:")
-                for idx, p in enumerate(paths):
-                    st.markdown(f"**Path #{idx + 1} (Hops: {p['path_length']}):**")
-                    chain = " ➔ ".join([f"`{n['id']}` ({n['label']})" for n in p["path_nodes"]])
-                    st.markdown(f"> {chain}")
-                    st.json(p["path_relationships"])
-            else:
-                st.warning(f"No qualifying path found between `{start_entity}` and `{end_entity}` within depth {depth}.")
-
-# ==============================================================================
-# PAGE 4: AGENT INVESTIGATION
-# ==============================================================================
-elif page == "4. Agent Investigation":
-    st.title("Deterministic Agent Investigation")
-    st.markdown("""
-    Execute the deterministic agent with transparent intent routing, FalkorDB Cypher traversals,
-    and automatic session persistence.
-    """)
-
-    # Quick Demo Launch Buttons (Section 16 E2E Workflow)
     st.markdown("#### ⚡ Quick-Run Demonstration Prompts")
     demo_cols = st.columns(3)
     preset_query = ""
@@ -384,7 +253,10 @@ elif page == "4. Agent Investigation":
         
         with st.spinner("Agent running Cypher queries against FalkorDB..."):
             res = agent.run(query_input.strip(), explicit_intent=override)
+            st.session_state["last_investigation"] = res
 
+    if "last_investigation" in st.session_state:
+        res = st.session_state["last_investigation"]
         st.markdown("---")
         st.markdown(f"### 🎯 Investigation Execution Result: `{res.get('session_id', 'N/A')}`")
 
@@ -399,38 +271,185 @@ elif page == "4. Agent Investigation":
         with m4:
             st.metric("Generated Findings", len(res.get("findings", [])))
 
-        # Prior context reuse callout
         if res.get("earlier_session_id"):
             st.info(f"🔁 **Context Reused from Prior Session:** `{res['earlier_session_id']}` directly from FalkorDB graph memory.")
-
-        # Tool execution audit trail
-        st.markdown("#### 🛠️ Deterministic Tool Invocations Log")
-        tools_df = pd.DataFrame(res.get("tools_invoked", []))
-        if not tools_df.empty:
-            st.dataframe(tools_df[["tool", "status", "duration_ms", "summary"]], use_container_width=True)
 
         # Grounded Findings
         st.markdown("#### 📜 Grounded Findings")
         for f in res.get("findings", []):
             st.markdown(f"**Finding ID:** `{f['finding_id']}` | **Sufficiency:** `{f['sufficiency']}`")
             st.markdown(f"> **Claim:** {f['claim']}")
-            if f.get("graph_paths"):
-                st.markdown("**Supporting Graph Path Traversed in FalkorDB:**")
-                st.json(f["graph_paths"])
 
-        # Evidence Items
-        st.markdown("#### 🔬 Formulated Evidence & Provenance")
-        for ev in res.get("evidence", []):
-            st.markdown(f"**Evidence ID:** `{ev['evidence_id']}` | **Type:** `{ev['epistemic_type']}` | **Rule:** `{ev['rule_name']}`")
-            st.markdown(f"> {ev['claim']}")
-            if ev.get("missing_evidence"):
-                st.markdown(f"⚠️ **Missing Unobserved Evidence:** `{', '.join(ev['missing_evidence'])}`")
+        # Action Buttons: Runbook Generation & Post-Mortem Export
+        st.markdown("---")
+        st.markdown("### 🛠️ Autonomous Next-Step SRE Actions")
+        act_col1, act_col2 = st.columns(2)
+        
+        with act_col1:
+            if st.button("🔧 Generate Autonomous Remediation Runbook"):
+                target = res.get("retrieved_entity_ids", ["E-101"])[0] if res.get("retrieved_entity_ids") else "E-101"
+                runbook = remediation_service.generate_remediation_runbook(target)
+                st.session_state["last_runbook"] = runbook
+                st.success(f"Generated Runbook: {runbook['title']} ({runbook['severity']})")
+
+        with act_col2:
+            target = res.get("retrieved_entity_ids", ["E-101"])[0] if res.get("retrieved_entity_ids") else "E-101"
+            runbook_to_export = st.session_state.get("last_runbook")
+            post_mortem_md = export_service.generate_markdown_post_mortem(res, runbook=runbook_to_export)
+            st.download_button(
+                label="📄 Export 1-Click Executive Post-Mortem (Markdown)",
+                data=post_mortem_md,
+                file_name=f"post_mortem_{target}_{int(time.time())}.md",
+                mime="text/markdown"
+            )
+
+        # Show Runbook Details if generated
+        if "last_runbook" in st.session_state:
+            rbk = st.session_state["last_runbook"]
+            st.markdown(f"#### 📋 Active Runbook: `{rbk['runbook_id']}`")
+            st.markdown(f"**Severity:** `{rbk['severity']}` | **Readiness:** `{rbk['automation_readiness']}`")
+            
+            for s in rbk.get("remediation_steps", []):
+                st.markdown(f"**Step {s['step_number']} [{s['phase']}]: {s['action']}** (Risk: `{s['risk']}`)")
+                st.code(s['command'], language="bash")
+                st.caption(f"Rationale: {s['rationale']}")
+
+            st.markdown("**FalkorDB Health Verification Check Query:**")
+            st.code(rbk["cypher_verification_check"], language="cypher")
 
 # ==============================================================================
-# PAGE 5: MEMORY AND SESSIONS
+# PAGE 4: DUAL-AGENT DEBATE (INVESTIGATOR VS AUDITOR)
 # ==============================================================================
-elif page == "5. Memory & Sessions":
-    st.title("Persistent Cross-Session Memory in FalkorDB")
+elif page == "4. 🤼 Dual-Agent Debate":
+    st.title("🤼 Dual-Agent Debate: Investigator vs. Epistemic Auditor")
+    st.markdown("""
+    Watch two specialized deterministic agents collaborate adversarially to eliminate hallucinations:
+    - **Agent Alpha (Lead Investigator):** Traverses the FalkorDB graph to formulate root-cause claims.
+    - **Agent Beta (Epistemic Auditor):** Challenges logical leaps, demands telemetry proofs, and audits epistemic rules.
+    """)
+
+    col_d1, col_d2 = st.columns([3, 1])
+    with col_d1:
+        debate_query = st.text_input("Incident Query to Audit", value="Investigate Event E-101")
+    with col_d2:
+        start_debate_btn = st.button("⚔️ Launch Dual-Agent Debate", type="primary")
+
+    if start_debate_btn and debate_query:
+        with st.spinner("Agents debating graph evidence and epistemic proofs..."):
+            debate_res = debate_service.run_debate(debate_query)
+
+        st.markdown(f"### 🛡️ Debate Session: `{debate_res['debate_session_id']}` (Target: `{debate_res['target_entity']}`)")
+
+        for r in debate_res.get("rounds", []):
+            if "Investigator" in r["speaker"]:
+                st.markdown(f"""
+                <div class="debate-bubble-investigator">
+                    <b>{r['avatar']} {r['speaker']}</b> <small>[Stance: {r['stance']}]</small><br><br>
+                    {r['speech']}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="debate-bubble-auditor">
+                    <b>{r['avatar']} {r['speaker']}</b> <small>[Stance: {r['stance']}]</small><br><br>
+                    {r['speech']}
+                </div>
+                """, unsafe_allow_html=True)
+
+        summary = debate_res.get("consensus_summary", {})
+        st.success(f"**Final Consensus Verdict:** `{summary.get('consensus_verdict')}` | Epistemic Grounding Score: **{int(summary.get('epistemic_score', 0) * 100)}%**")
+        st.markdown(f"> **Agreed Claim:** {summary.get('final_claim')}")
+
+# ==============================================================================
+# PAGE 5: WHAT-IF CHAOS OUTAGE SIMULATOR
+# ==============================================================================
+elif page == "5. ⚡ 'What-If' Chaos Simulator":
+    st.title("⚡ 'What-If' Counterfactual Chaos Outage Simulator")
+    st.markdown("Select any system or software and simulate what happens if it experiences catastrophic failure.")
+
+    col_c1, col_c2 = st.columns([2, 1])
+    with col_c1:
+        target_sys = st.selectbox(
+            "Select Target System to Simulate Failure",
+            ["SYS-AUTH-01", "SYS-PAY-02", "SYS-DATA-03", "SYS-GATEWAY"]
+        )
+    with col_c2:
+        kill_btn = st.button("💥 Simulate System Crash (Pre-Mortem)", type="primary")
+
+    if kill_btn:
+        with st.spinner("Computing transitive blast radius across FalkorDB topology..."):
+            report = whatif_simulator.simulate_system_outage(target_sys)
+
+        st.markdown("---")
+        st.subheader(f"💥 Pre-Mortem Report for `{target_sys}`")
+        st.markdown(f"### Risk Tier: `{report['risk_tier']}`")
+        st.info(report["pre_mortem_summary"])
+
+        k1, k2, k3, k4 = st.columns(4)
+        with k1:
+            st.metric("Immediate Failures (1-Hop)", report["immediate_hop1_failures"])
+        with k2:
+            st.metric("Secondary Failures (2-Hop)", report["secondary_hop2_failures"])
+        with k3:
+            st.metric("Total Severed Systems", report["total_downstream_systems_impacted"])
+        with k4:
+            st.metric("Cascade Duration", f"{report['estimated_cascade_seconds']}s")
+
+        st.markdown("#### 🚨 Cascading Dependency Impact List")
+        if report["cascading_systems"]:
+            df_casc = pd.DataFrame(report["cascading_systems"])
+            st.dataframe(df_casc, use_container_width=True)
+        else:
+            st.success("No downstream systems depend on this component. Failure is isolated.")
+
+# ==============================================================================
+# PAGE 6: REAL-TIME ALERT WEBHOOK INGESTOR
+# ==============================================================================
+elif page == "6. 🔔 Alert Webhook Ingestor":
+    st.title("🔔 Real-Time Alert Webhook Ingestion")
+    st.markdown("Ingest live or simulated JSON alerts from Prometheus, Datadog, or AWS CloudWatch into FalkorDB.")
+
+    col_w1, col_w2 = st.columns([1, 2])
+    with col_w1:
+        selected_sample = st.selectbox("Select Sample Monitoring Alert", list(SAMPLE_ALERTS.keys()))
+        sample_payload = SAMPLE_ALERTS[selected_sample]
+
+    with col_w2:
+        raw_json = st.text_area("Alert JSON Payload", value=json.dumps(sample_payload, indent=2), height=220)
+
+    if st.button("📥 Ingest Alert & Dispatch Autonomous Agent", type="primary"):
+        try:
+            parsed = json.loads(raw_json)
+            with st.spinner("Ingesting alert into FalkorDB graph and dispatching agent..."):
+                res = webhook_service.ingest_and_investigate(parsed)
+
+            st.success(f"Successfully ingested event `{res['ingested_event_id']}` into FalkorDB!")
+            
+            w_col1, w_col2 = st.columns(2)
+            with w_col1:
+                st.markdown("#### Ingestion Metadata")
+                st.write(f"- **Event ID:** `{res['ingested_event_id']}`")
+                st.write(f"- **Record ID:** `{res['ingested_record_id']}`")
+                st.write(f"- **Target System:** `{res['target_system']}`")
+                st.write(f"- **Source:** `{res['source']}`")
+                st.write(f"- **Timestamp:** `{res['timestamp']}`")
+
+            with w_col2:
+                st.markdown("#### Immediate Agent Investigation Report")
+                agent_res = res.get("agent_investigation", {})
+                st.write(f"- **Intent:** `{agent_res.get('intent')}`")
+                st.write(f"- **Context Status:** `{agent_res.get('reuse_outcome')}`")
+                st.write(f"- **Session ID:** `{agent_res.get('session_id')}`")
+                st.write(f"- **Findings Count:** `{len(agent_res.get('findings', []))}`")
+
+        except Exception as e:
+            st.error(f"Failed to process alert payload: {e}")
+
+# ==============================================================================
+# PAGE 7: MEMORY & SESSIONS
+# ==============================================================================
+elif page == "7. 💾 Memory & Sessions":
+    st.title("💾 Persistent Cross-Session Memory in FalkorDB")
     st.markdown("""
     All session interactions, investigations, and findings persist across application restarts
     as first-class graph nodes in FalkorDB.
@@ -460,58 +479,14 @@ elif page == "5. Memory & Sessions":
                 st.markdown("#### Session Graph Record Details")
                 st.json(s_full)
     else:
-        st.info("No sessions stored in FalkorDB yet. Run an investigation from **4. Agent Investigation**.")
+        st.info("No sessions stored in FalkorDB yet. Run an investigation from **3. 🤖 Agent Investigation Lab**.")
 
 # ==============================================================================
-# PAGE 6: EXPLAINABILITY
+# PAGE 8: SYSTEM HEALTH & MCP
 # ==============================================================================
-elif page == "6. Explainability":
-    st.title("Traceable Evidence & Epistemic Explainability")
-    st.markdown("""
-    Every important conclusion is backed by explicit epistemic classifications, derivation rules,
-    and verified Cypher graph paths.
-    """)
-
-    st.markdown("### 📚 Grounded Epistemic Catalog")
-    st.markdown("""
-    | Category | Definition | Status |
-    | :--- | :--- | :--- |
-    | **STORED_FACT** | Directly recorded property or relationship in FalkorDB | Verified |
-    | **RULE_BASED_INFERENCE** | Derived from stored facts using a documented rule | Inferred |
-    | **HYPOTHESIS** | Plausible explanation lacking sufficient supporting evidence | Unproven |
-    | **UNKNOWN** | Information cannot be established from available records | Missing |
-    """)
-
-    st.markdown("---")
-    st.markdown("### 🔎 7-Part Explainability Breakdown")
-    sample_finding = {
-        "finding_id": "FND-AUTH-DESYNC",
-        "claim": "SYS-AUTH-01 experienced a signature desync event correlated with LibCrypto vulnerability CVE-SYNTH-2026-4401.",
-        "sufficiency": "SUPPORTED",
-        "supporting_evidence_ids": ["EVID-AUTH-01", "REC-VULN-4401"],
-        "graph_paths": ["(E-101)-[:AFFECTS]->(SYS-AUTH-01)-[:USES]->(LibCrypto)"],
-        "rule": RULES_CATALOG["RULE-CONNECTED-SOFTWARE-RISK"],
-        "source_session_id": "CURRENT_SESSION",
-        "unknowns": ["Direct memory exploit trace is absent from current logs."],
-        "missing_evidence": ["Full packet payload capture of the anomalous signature burst."]
-    }
-
-    exp = evidence_service.format_explanation(sample_finding)
-    
-    st.markdown(f"1. **What was concluded:**\n> {exp['conclusion']}")
-    st.markdown(f"2. **Which evidence supports it:** `{', '.join(exp['supporting_evidence_ids'])}`")
-    st.markdown(f"3. **Graph path used in FalkorDB:** `{exp['graph_paths']}`")
-    st.markdown(f"4. **Which rule was applied:** `{exp['applied_rule']['name']}` (`{exp['applied_rule']['epistemic_type']}`)")
-    st.markdown(f"5. **Which earlier session contributed information:** `{exp['contributing_session_id']}`")
-    st.markdown(f"6. **What remains unknown:** `{', '.join(exp['unknowns'])}`")
-    st.markdown(f"7. **Additional evidence that would strengthen it:** `{', '.join(exp['strengthening_evidence_needed'])}`")
-
-# ==============================================================================
-# PAGE 7: SYSTEM HEALTH
-# ==============================================================================
-elif page == "7. System Health":
-    st.title("System Health & Diagnostic Telemetry")
-    st.markdown("Real-time operational status of all application tiers.")
+elif page == "8. 🩺 System Health & MCP":
+    st.title("🩺 System Health & MCP Server Integration")
+    st.markdown("Real-time operational status of all application tiers and FastMCP configuration.")
 
     ok, h_info = db_manager.check_health()
     

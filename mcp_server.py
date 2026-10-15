@@ -10,6 +10,10 @@ from mcp.server.fastmcp import FastMCP
 from graph_service import graph_service
 from memory_service import memory_service
 from agent import agent
+from whatif_simulator import whatif_simulator
+from remediation_service import remediation_service
+from debate_service import debate_service
+from webhook_service import webhook_service
 
 # Initialize FastMCP Server
 mcp = FastMCP("ContextGraphAI")
@@ -55,7 +59,28 @@ def run_agent_investigation(user_request: str) -> Dict[str, Any]:
     """Execute the full deterministic investigation pipeline with FalkorDB session persistence."""
     return agent.run(user_request)
 
+@mcp.tool()
+def simulate_what_if_outage(system_id: str) -> Dict[str, Any]:
+    """Simulate catastrophic failure of a system and compute cascading transitive blast radius."""
+    return whatif_simulator.simulate_system_outage(system_id)
+
+@mcp.tool()
+def generate_mitigation_runbook(entity_id: str) -> Dict[str, Any]:
+    """Synthesize an actionable, step-by-step SRE remediation runbook grounded in FalkorDB."""
+    return remediation_service.generate_remediation_runbook(entity_id)
+
+@mcp.tool()
+def run_dual_agent_debate(query: str) -> Dict[str, Any]:
+    """Execute adversarial collaboration between Lead Investigator and Epistemic Auditor agents."""
+    return debate_service.run_debate(query)
+
+@mcp.tool()
+def ingest_monitoring_alert(alert_payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Ingest live Prometheus/Datadog/CloudWatch alert into FalkorDB and trigger immediate investigation."""
+    return webhook_service.ingest_and_investigate(alert_payload)
+
 if __name__ == "__main__":
     # Support stdio transport by default (standard for MCP clients)
     print("Starting ContextGraph AI MCP Server on stdio transport...", file=sys.stderr)
     mcp.run(transport="stdio")
+

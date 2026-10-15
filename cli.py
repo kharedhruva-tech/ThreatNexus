@@ -1,6 +1,7 @@
 """
-ContextGraph AI - Command Line Interface (CLI).
-Allows running investigations, timeline reconstructions, and simulations directly in PowerShell or Bash.
+ContextGraph AI - Advanced Command Line Interface (CLI).
+Allows running investigations, timeline reconstructions, what-if chaos simulations,
+remediation runbooks, dual-agent debates, and post-mortem exports directly from PowerShell.
 """
 import sys
 import argparse
@@ -11,6 +12,10 @@ from memory_service import memory_service
 from evidence_service import evidence_service
 from simulation_engine import simulation_engine
 from database import db_manager
+from whatif_simulator import whatif_simulator
+from remediation_service import remediation_service
+from debate_service import debate_service
+from export_service import export_service
 
 # Ensure UTF-8 output on Windows consoles
 if hasattr(sys.stdout, "reconfigure"):
@@ -22,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 def print_banner():
     banner = r"""
   ==============================================================
-    ContextGraph AI — Deterministic Graph-Powered Agent CLI
+    ContextGraph AI — Advanced Graph-Powered Agent CLI
   ==============================================================
     FalkorDB: 127.0.0.1:6379 | Zero LLM API Keys | Full Grounding
   ==============================================================
@@ -91,22 +96,71 @@ def run_timeline():
         print(f"[{ts}] [{sev}] {eid}: {name} (Target: {tgt}){causation}")
     print("=" * 65 + "\n")
 
-def run_simulation(event_code: str):
-    print(f"\n[+] Triggering Simulation Event '{event_code}'...")
-    res = simulation_engine.trigger_event(event_code)
-    print("Status  :", res.get("status"))
-    print("Message :", res.get("message"))
-    if "event" in res:
-        print("Details :", json.dumps(res["event"], indent=2))
+def run_whatif(system_id: str):
+    print(f"\n[+] Executing What-If Outage Simulation for '{system_id}'...")
+    rep = whatif_simulator.simulate_system_outage(system_id)
+    print("\n" + "=" * 65)
+    print(f"PRE-MORTEM OUTAGE REPORT — {system_id} (Risk: {rep.get('risk_tier')})")
+    print("=" * 65)
+    print(f"Summary: {rep.get('pre_mortem_summary')}\n")
+    print(f"- Immediate 1-Hop Failures : {rep.get('immediate_hop1_failures')}")
+    print(f"- Secondary 2-Hop Failures : {rep.get('secondary_hop2_failures')}")
+    print(f"- Total Severed Systems    : {rep.get('total_downstream_systems_impacted')}")
+    print(f"- Estimated Cascade Velocity: {rep.get('estimated_cascade_seconds')} seconds")
+    if rep.get("cascading_systems"):
+        print("\nImpacted Downstream Systems:")
+        for s in rep["cascading_systems"]:
+            print(f"  * {s['id']} ({s['name']}) - Hop Distance: {s['hop_distance']}")
+    print("=" * 65 + "\n")
+
+def run_runbook(entity_id: str):
+    print(f"\n[+] Synthesizing SRE Remediation Runbook for '{entity_id}'...")
+    rbk = remediation_service.generate_remediation_runbook(entity_id)
+    print("\n" + "=" * 65)
+    print(f"AUTONOMOUS REMEDIATION RUNBOOK: {rbk.get('runbook_id')}")
+    print(f"Title: {rbk.get('title')} ({rbk.get('severity')})")
+    print("=" * 65)
+    for step in rbk.get("remediation_steps", []):
+        print(f"\n[Step {step['step_number']} - {step['phase']}] {step['action']} (Risk: {step['risk']})")
+        print(f" Command: {step['command']}")
+        print(f" Rationale: {step['rationale']}")
+    print(f"\nCypher Health Verification Check:\n  {rbk.get('cypher_verification_check')}")
+    print("=" * 65 + "\n")
+
+def run_debate(query: str):
+    print(f"\n[+] Initiating Dual-Agent Adversarial Debate on: '{query}'...")
+    deb = debate_service.run_debate(query)
+    print("\n" + "=" * 65)
+    print(f"DUAL-AGENT DEBATE SESSION: {deb.get('debate_session_id')} (Target: {deb.get('target_entity')})")
+    print("=" * 65)
+    for r in deb.get("rounds", []):
+        print(f"\n>> {r['speaker']} [{r['stance']}]:")
+        print(f"   {r['speech']}")
+    summary = deb.get("consensus_summary", {})
+    print("\n" + "-" * 65)
+    print(f"CONSENSUS VERDICT : {summary.get('consensus_verdict')} (Confidence: {int(summary.get('epistemic_score', 0)*100)}%)")
+    print(f"AGREED ROOT CAUSE : {summary.get('final_claim')}")
+    print("=" * 65 + "\n")
+
+def run_postmortem(entity_id: str):
+    print(f"\n[+] Generating SRE Post-Mortem Document for '{entity_id}'...")
+    inv_res = agent.run(f"Investigate {entity_id}")
+    rbk = remediation_service.generate_remediation_runbook(entity_id)
+    whatif = whatif_simulator.simulate_system_outage("SYS-AUTH-01")
+    md = export_service.generate_markdown_post_mortem(inv_res, runbook=rbk, whatif_report=whatif)
+    filename = f"post_mortem_{entity_id}.md"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(md)
+    print(f"[+] Post-Mortem successfully exported to '{filename}' ({len(md)} bytes).\n")
 
 def interactive_mode():
     print_banner()
     print("Entering interactive PowerShell mode. Type 'exit' or 'quit' to leave.")
-    print("Example commands:")
+    print("Commands:")
     print("  - Investigate incident E-101")
-    print("  - What caused incident E-102?")
-    print("  - Show incident timeline")
-    print("  - Retrieve previous context for E-101")
+    print("  - whatif SYS-AUTH-01")
+    print("  - runbook E-101")
+    print("  - debate Investigate E-101")
     print("  - timeline")
     print("  - status\n")
     
@@ -118,6 +172,15 @@ def interactive_mode():
             if user_input.lower() in ("exit", "quit", "q"):
                 print("Exiting ContextGraph AI CLI. Goodbye!")
                 break
+            elif user_input.lower().startswith("whatif "):
+                target = user_input.split(" ", 1)[1].strip()
+                run_whatif(target)
+            elif user_input.lower().startswith("runbook "):
+                target = user_input.split(" ", 1)[1].strip()
+                run_runbook(target)
+            elif user_input.lower().startswith("debate "):
+                q = user_input.split(" ", 1)[1].strip()
+                run_debate(q)
             elif user_input.lower() == "timeline":
                 run_timeline()
             elif user_input.lower() == "status":
@@ -133,19 +196,28 @@ def interactive_mode():
             print(f"[!] Error: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="ContextGraph AI PowerShell CLI")
-    parser.add_argument("query", nargs="?", help="Natural language or incident query to investigate (e.g. 'Investigate E-101')")
+    parser = argparse.ArgumentParser(description="ContextGraph AI Advanced PowerShell CLI")
+    parser.add_argument("query", nargs="?", help="Natural language query to investigate")
     parser.add_argument("-i", "--interactive", action="store_true", help="Launch interactive PowerShell REPL session")
     parser.add_argument("-t", "--timeline", action="store_true", help="Show chronological incident timeline")
-    parser.add_argument("-s", "--simulate", type=str, help="Trigger a simulation event (SIM-EVT-01, SIM-EVT-02, SIM-EVT-03, SIM-EVT-04)")
+    parser.add_argument("--whatif", type=str, help="Simulate catastrophic failure of a system (e.g. --whatif SYS-AUTH-01)")
+    parser.add_argument("--runbook", type=str, help="Generate SRE remediation runbook (e.g. --runbook E-101)")
+    parser.add_argument("--debate", type=str, help="Launch dual-agent debate on an incident (e.g. --debate 'Investigate E-101')")
+    parser.add_argument("--postmortem", type=str, help="Export 1-click Markdown SRE post-mortem (e.g. --postmortem E-101)")
     parser.add_argument("--status", action="store_true", help="Check live FalkorDB connectivity and node counts")
 
     args = parser.parse_args()
 
     if args.timeline:
         run_timeline()
-    elif args.simulate:
-        run_simulation(args.simulate)
+    elif args.whatif:
+        run_whatif(args.whatif)
+    elif args.runbook:
+        run_runbook(args.runbook)
+    elif args.debate:
+        run_debate(args.debate)
+    elif args.postmortem:
+        run_postmortem(args.postmortem)
     elif args.status:
         healthy, diag = db_manager.check_health()
         print(f"Database Health: {'HEALTHY' if healthy else 'UNHEALTHY'}")
@@ -153,7 +225,6 @@ def main():
     elif args.query:
         run_query(args.query)
     else:
-        # Default to interactive mode if no arguments provided
         interactive_mode()
 
 if __name__ == "__main__":
