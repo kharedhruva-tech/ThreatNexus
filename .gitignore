@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment secrets
+.env
+*.log
+
+# Streamlit
+.streamlit/
