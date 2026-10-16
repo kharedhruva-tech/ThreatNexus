@@ -1,25 +1,32 @@
-# ContextGraph AI — Voice-Enabled Persistent AI Agent with FalkorDB
-## Zero Paid AI APIs — Local-First Graph Memory Platform
+<div align="center">
 
-[![Tests Passing](https://img.shields.io/badge/pytest-47%20passed-brightgreen.svg)](tests/)
-[![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
-[![FalkorDB](https://img.shields.io/badge/database-FalkorDB-red.svg)](https://falkordb.com)
-[![React](https://img.shields.io/badge/frontend-React%20%7C%20Vite%20%7C%20TypeScript-blue.svg)](frontend/)
-[![Speech](https://img.shields.io/badge/voice-Web%20Speech%20API-purple.svg)]()
-[![License](https://img.shields.io/badge/license-MIT-green.svg)]()
+<img src="frontend/public/threatnexus-logo.jpg" alt="ThreatNexus Logo" width="180" style="border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 240, 255, 0.25);" />
+
+# ThreatNexus
+### Voice-Enabled Persistent AI Agent & Threat Intelligence Platform with FalkorDB
+**Zero Paid AI APIs • Local-First Graph Memory • Deterministic Grounding • Enterprise Next.js Portal**
+
+[![Pytest Suite](https://img.shields.io/badge/pytest-47%20passed-brightgreen.svg?style=for-the-badge&logo=pytest)](tests/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI%200.115+-009688.svg?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![FalkorDB](https://img.shields.io/badge/Database-FalkorDB-e63946.svg?style=for-the-badge&logo=redis)](https://falkordb.com)
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016%20%7C%20React%2019-000000.svg?style=for-the-badge&logo=next.js)](frontend/)
+[![Streamlit](https://img.shields.io/badge/Console-Streamlit%201.40+-FF4B4B.svg?style=for-the-badge&logo=streamlit)](app.py)
+[![Docker](https://img.shields.io/badge/Deploy-Docker%20Ready-2496ED.svg?style=for-the-badge&logo=docker)](Dockerfile)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+
+</div>
 
 ---
 
 ## 30-Second Overview
 
-**ContextGraph AI** is a complete, voice-enabled AI assistant with persistent graph memory, contextual retrieval, and optional local LLM integration. 
+**ThreatNexus** is an autonomous, voice-enabled cybersecurity and infrastructure intelligence platform powered by **FalkorDB** graph memory. Unlike typical amnesic LLM chatbots that lose context when conversations end, ThreatNexus stores all entities, software dependencies, cyber incidents, and investigations permanently as connected knowledge graphs.
 
-Unlike traditional session-bound agents that suffer from amnesia, ContextGraph AI anchors all memories, entities, conversations, and investigations in **FalkorDB**. Using native openCypher graph queries, it retrieves relevant facts and historical context across conversations and application restarts.
-
-- **Deterministic Agent Engine (Default):** Operates 100% deterministically without external model calls, avoiding hallucinations and cloud API charges.
-- **Optional Local LLM (Mode B):** Offline integration with local Ollama instances, strictly grounded on retrieved FalkorDB graph facts with graceful deterministic fallback.
-- **Browser Voice Recognition & Synthesis:** Converts microphone speech into text locally and speaks assistant responses aloud using browser speech APIs.
-- **Enterprise Web Interface:** Deep navy/cyan cyber interface featuring an animated holographic voice orb, React Flow graph explorer, persistent memory manager, and incident console.
+- **Deterministic Agent Engine (Default):** Operates 100% locally with zero cloud API keys, zero hallucinations, and zero cost using strict openCypher graph traversal.
+- **Optional Local LLM (Mode B):** Offline integration with local Ollama (`llama3`, `mistral`), strictly grounded against retrieved graph facts with automatic deterministic fallback.
+- **Persistent Graph Memory:** Cross-session memory anchors facts, causal event chains (`AFFECTS`, `LED_TO`), and system topologies in FalkorDB.
+- **Cyber Holographic Portal:** Built with **Next.js 16**, **React 19**, and **Tailwind CSS**, featuring spatial glassmorphic tiles, interactive React Flow graph explorer, floating voice assistant, and live telemetry.
+- **Dual Console Options:** Includes both the modern **Next.js 16 Web Portal** and the deep-analytics **Streamlit SRE Dashboard** (`app.py`).
 
 ---
 
@@ -27,121 +34,118 @@ Unlike traditional session-bound agents that suffer from amnesia, ContextGraph A
 
 ```mermaid
 graph TD
-    subgraph Frontend [Enterprise Web Client (React 19 + TypeScript + Vite)]
-        Voice[Holographic Voice Orb & Web Speech API]
-        Composer[Text Message Composer]
-        Canvas[React Flow Graph Explorer]
-        MemUI[Persistent Memory Manager]
-        HealthUI[Live System & DB Health]
+    subgraph ClientLayers [Interactive Client Applications]
+        WebPortal["Next.js 16 Glassmorphic Portal (localhost:3000)"]
+        VoiceOrb["Holographic Voice Assistant & Web Speech API"]
+        GraphExplorer["React Flow Graph Topology Visualizer"]
+        StreamlitApp["Streamlit Incident & Cascade Console (localhost:8501)"]
     end
 
-    subgraph Backend [FastAPI REST Gateway (127.0.0.1:8080)]
+    subgraph Gateway [FastAPI Gateway & REST Service (Port 8000)]
         API_Health["GET /api/health & /api/health/database"]
         API_Chat["POST /api/chat"]
         API_Voice["POST /api/voice/transcript"]
-        API_Mem["GET/POST/DELETE /api/memory"]
-        API_Graph["GET /api/graph"]
+        API_Memory["GET / POST / DELETE /api/memory"]
+        API_Graph["GET /api/graph & /api/graph/subgraph"]
+        API_Sim["POST /api/simulation/whatif"]
+        API_Debate["POST /api/debate"]
     end
 
-    subgraph AgentEngine [Agent Reasoning Layer]
-        Router[Deterministic Intent Router]
-        ChatSvc[Chat & Voice Service]
-        DetEngine[Deterministic Graph Engine]
-        OllamaEngine[Local Ollama Bridge (Optional)]
+    subgraph ReasoningLayer [ThreatNexus Autonomous Engine]
+        Router["Deterministic Intent Router"]
+        DetEngine["Deterministic openCypher Query Planner"]
+        OllamaBridge["Local Ollama Offline LLM (Optional)"]
+        Explainability["7-Part Epistemic Evidence Engine"]
     end
 
-    subgraph Persistence [Graph Database Layer]
-        Falkor[(FalkorDB 127.0.0.1:6379)]
-        UserNodes[User & Conversation Nodes]
-        MsgNodes[Message Nodes]
-        FactNodes[Fact & Memory Nodes]
-        SystemNodes[System, Software, Event Nodes]
+    subgraph DatabaseLayer [FalkorDB Graph Persistence (Port 6379)]
+        Falkor[(FalkorDB Instance)]
+        Nodes_Entities[":System, :Software, :Record Nodes"]
+        Nodes_Incidents[":Event, :Incident, :Timeline Nodes"]
+        Nodes_Memory[":Fact, :Session, :Evidence Nodes"]
+        Edges_Graph["-[:AFFECTS | :LED_TO | :USES | :REVISITS]->"]
     end
 
-    Voice -->|Audio Speech to Text| API_Voice
-    Composer -->|JSON Payload| API_Chat
-    API_Voice --> ChatSvc
-    API_Chat --> ChatSvc
-    ChatSvc --> Router
-    Router --> DetEngine
-    Router -.->|Opt-in| OllamaEngine
-    DetEngine -->|openCypher Query| Falkor
-    OllamaEngine -->|Grounding Context| Falkor
-    Falkor --> UserNodes
-    Falkor --> MsgNodes
-    Falkor --> FactNodes
-    Falkor --> SystemNodes
-    Canvas -->|Fetch Graph Topology| API_Graph
-    API_Graph --> Falkor
-    MemUI --> API_Mem
-    API_Mem --> Falkor
+    WebPortal --> Gateway
+    VoiceOrb --> Gateway
+    StreamlitApp --> Gateway
+    Gateway --> ReasoningLayer
+    ReasoningLayer --> DatabaseLayer
+    DatabaseLayer --> Falkor
+    Falkor --- Nodes_Entities
+    Falkor --- Nodes_Incidents
+    Falkor --- Nodes_Memory
+    Falkor --- Edges_Graph
 ```
 
 ---
 
-## Root Cause Diagnosis & Fixes Implemented
+## Key Features
 
-Prior to this implementation, the frontend encountered a **"Failed to fetch"** error. Investigation revealed two root causes:
-
-1. **Python Dependency Mismatch in FastAPI/Starlette:**  
-   `starlette 1.8.0` was installed alongside `fastapi 0.110.0`. In Starlette 0.46+, `on_startup` was removed from `Router.__init__`, causing `server.py` to crash immediately on startup with `TypeError: Router.__init__() got an unexpected keyword argument 'on_startup'`. Upgrading `fastapi>=0.115.0` resolved the conflict and restored server functionality.
-2. **Missing Host Port Mapping in FalkorDB Container:**  
-   The FalkorDB container was running in WSL without publishing port 6379 to the host (`-p 6379:6379`). Windows connections to `127.0.0.1:6379` were actively refused. Re-creating the container with `-p 6379:6379` and establishing a keep-alive background worker restored direct Cypher execution.
+| Capability | Description |
+|---|---|
+| **Voice-Enabled Assistant** | Native in-browser Web Speech API for voice dictation and synthesized spoken responses without streaming audio to external servers. |
+| **FalkorDB Knowledge Graph** | High-performance graph queries mapping systems, software vulnerabilities, and incident timelines using native openCypher. |
+| **Deterministic Intent Classification** | Regex-driven router that classifies user inquiries, checks facts, extracts subgraphs, and handles unknown questions honestly. |
+| **Cross-Session Memory** | Facts recorded in Session A remain instantly retrievable in Session B, enabling cumulative investigations. |
+| **Blast Radius Outage Simulator** | Counterfactual what-if chaos simulator (`/api/simulation/whatif`) to compute cascading failures before maintenance. |
+| **Adversarial SRE Debate** | Dual-agent simulation evaluating root cause hypotheses from competing operational viewpoints. |
+| **Production Ready** | Pre-configured `Dockerfile` and `docker-compose.yml` for instant deployment on Railway, Docker, or bare metal. |
 
 ---
 
 ## Quickstart Guide
 
 ### Prerequisites
-
-- Python 3.10+
+- Python 3.11+
 - Node.js 18+ and npm
 - Docker or WSL 2 with Docker installed
-- Windows PowerShell or Bash terminal
 
-### 1. Start FalkorDB
+---
 
+### Step 1: Start FalkorDB
 Run the official FalkorDB Docker container with persistent volume and port mapping:
 
 ```powershell
 docker run -d --name falkordb -p 6379:6379 -v falkordb_data:/data --restart always falkordb/falkordb:latest
 ```
 
-*If using WSL Ubuntu:*
-```bash
-wsl -d Ubuntu -u root -- docker run -d --name falkordb -p 6379:6379 -v falkordb_data:/data --restart always falkordb/falkordb:latest
+*Or via Docker Compose:*
+```powershell
+docker-compose up -d
 ```
 
-Verify connection:
+Verify connectivity:
 ```powershell
 python verify_falkordb.py
 ```
 
-### 2. Seed the Graph Database
+---
 
-Initialize the schema, constraints, indices, and baseline synthetic topology:
+### Step 2: Seed the Knowledge Graph
+Populate the database with baseline security topologies, software stacks, and incident scenarios:
 
 ```powershell
 python seed_data.py
 ```
 
-### 3. Start the Backend Server
+---
 
-Start the FastAPI server on `http://127.0.0.1:8080`:
+### Step 3: Launch the FastAPI Backend
+Start the high-performance asynchronous REST gateway on port 8000:
 
 ```powershell
-python -m uvicorn server:app --host 127.0.0.1 --port 8080 --reload
+uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Test health endpoints:
-```powershell
-curl http://127.0.0.1:8080/api/health
-curl http://127.0.0.1:8080/api/health/database
-```
+- API Docs (Swagger): `http://localhost:8000/docs`
+- Health Endpoint: `http://localhost:8000/api/health`
+- Database Telemetry: `http://localhost:8000/api/health/database`
 
-### 4. Start the Frontend Application
+---
 
-In a separate terminal, start the Vite development server:
+### Step 4: Launch the Next.js Frontend Portal
+In a new terminal window:
 
 ```powershell
 cd frontend
@@ -149,29 +153,43 @@ npm install
 npm run dev
 ```
 
-Open your browser to:
-- **Frontend Development Portal:** `http://localhost:5173/voice`
-- **FastAPI Direct Production Portal:** `http://127.0.0.1:8080/`
+Open your browser to **`http://localhost:3000`** to experience the ThreatNexus command center:
+- **Overview & Spatial Workspace:** Real-time metrics, system health, and interactive holographic tiles.
+- **Graph Explorer:** Visual graph canvas with dynamic node inspection.
+- **Incident Investigation:** Cross-session evidence drawer and chronological causal timeline.
+- **Scenarios & Chaos Lab:** Blast radius simulation for affected microservices.
+- **Floating Voice Assistant:** Voice-driven threat queries and live memory recall.
 
 ---
 
-## Agent Operating Modes
+### Step 5: (Optional) Launch Streamlit SRE Console
+For deep incident cascade analytics and legacy tabular views:
 
-### Mode A: Deterministic Agent (Default)
+```powershell
+streamlit run app.py
+```
+Access at `http://localhost:8501`.
 
-- No external LLM or cloud API keys required.
-- Intent classification through regex patterns and deterministic rules.
-- Directly retrieves facts, systems, software dependencies, and chronological timelines from FalkorDB.
-- Transparently reports when requested information is absent rather than guessing or hallucinating.
-- Persists conversations, user prompts, agent answers, and extracted facts into FalkorDB.
+---
 
-### Mode B: Optional Local Ollama LLM (Offline)
+## Cloud Deployment
 
-- Opt-in integration via the Settings page or setting `AGENT_MODE=ollama`.
-- Queries FalkorDB first to retrieve ground-truth graph facts.
-- Constructs a grounded prompt sent to local Ollama (`http://127.0.0.1:11434/api/generate`).
-- If Ollama is offline or times out, it provides a transparent notice and seamlessly falls back to the deterministic engine.
-- Never calls paid cloud APIs (no OpenAI, Anthropic, or external telemetry).
+### 1. Railway.app (Backend + FalkorDB)
+1. Fork or push this repository to GitHub.
+2. In Railway, click **New Project** -> **Provision Redis** (or deploy FalkorDB via Docker image `falkordb/falkordb:latest`).
+3. Click **Add Service** -> **GitHub Repo** and select `kharedhruva-tech/ai-agent`.
+4. Add environment variables:
+   - `FALKORDB_HOST`: `<Your Railway FalkorDB Host>`
+   - `FALKORDB_PORT`: `<Your Railway FalkorDB Port>`
+   - `PORT`: `8000`
+5. Railway uses the included `Dockerfile` automatically to build, seed, and run `server.py`.
+
+### 2. Vercel / Netlify (Frontend)
+1. Import the `/frontend` directory into Vercel or Netlify.
+2. Set build command: `npm run build`
+3. Set output directory: `.next`
+4. Configure environment variable:
+   - `NEXT_PUBLIC_API_URL`: `https://your-backend-railway-url.railway.app`
 
 ---
 
@@ -180,101 +198,74 @@ Open your browser to:
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/api/health` | Returns service health, version, agent mode, and DB status |
-| `GET` | `/api/health/database` | Returns live FalkorDB connectivity, node count, edge count |
-| `POST` | `/api/chat` | Main chat endpoint supporting deterministic and Ollama modes |
-| `POST` | `/api/voice/transcript` | Validates speech recognition transcript and routes to chat engine |
-| `GET` | `/api/memory/search` | Searches persistent Fact nodes in FalkorDB (`?q=...`) |
-| `POST` | `/api/memory` | Creates a new Fact node linked to entities or projects |
-| `DELETE` | `/api/memory/{memory_id}` | Deletes a Fact or Session node by ID |
-| `GET` | `/api/graph` | Returns full graph topology for React Flow visualization |
-| `GET` | `/api/conversations` | Lists stored conversation threads |
-| `GET` | `/api/conversations/{conv_id}` | Retrieves ordered messages for a conversation |
-| `GET` | `/api/status` | Legacy health check with session counts |
-| `POST` | `/api/agent/investigate` | Full 7-part explainable agent investigation |
-| `GET` | `/api/graph/subgraph` | Bounded subgraph extraction surrounding an entity |
-| `GET` | `/api/graph/timeline` | Causal chronological incident timeline |
+| `GET` | `/api/health/database` | Returns live FalkorDB connectivity, node counts, edge counts |
+| `POST` | `/api/chat` | Main query endpoint supporting deterministic and local Ollama modes |
+| `POST` | `/api/voice/transcript` | Validates speech recognition transcript and routes to engine |
+| `GET` | `/api/memory/search` | Performs full-text / openCypher search over persistent memory |
+| `POST` | `/api/memory` | Creates an atomic Fact node linked to entities or investigations |
+| `DELETE` | `/api/memory/{id}` | Deletes a stored Fact or Session record |
+| `GET` | `/api/graph` | Extracts full topology for React Flow visualization |
+| `GET` | `/api/graph/subgraph` | Extracts bounded n-hop subgraph around a specific entity |
+| `GET` | `/api/graph/timeline` | Generates causal chronological incident timeline |
 | `POST` | `/api/simulation/whatif` | Counterfactual blast radius outage simulator |
-| `POST` | `/api/debate` | Dual-agent adversarial SRE debate |
+| `POST` | `/api/debate` | Dual-agent adversarial root cause debate |
 
 ---
 
-## FalkorDB Memory Schema
+## FalkorDB openCypher Schema
 
-### Node Labels
-- `:User` — Operator identity (`id`, `name`, `created_at`).
-- `:Conversation` — Conversation thread (`id`, `title`, `created_at`, `updated_at`).
-- `:Message` — Message turn (`id`, `sender`, `text`, `agent_mode`, `timestamp`).
-- `:Fact` — Atomic memory item (`id`, `text`, `category`, `provenance`, `created_at`).
-- `:Entity` — System, Software, Event, or Record entities in the topology.
-- `:System`, `:Software`, `:Event`, `:Record` — Domain topology nodes.
-- `:Session`, `:Investigation`, `:Finding`, `:Evidence` — Investigation explainability nodes.
+```cypher
+// Node Labels
+(:User {id, name, created_at})
+(:Conversation {id, title, created_at, updated_at})
+(:Message {id, sender, text, agent_mode, timestamp})
+(:Fact {id, text, category, provenance, created_at})
+(:System {id, name, tier, criticality, status})
+(:Software {id, name, version, cve})
+(:Event {id, title, severity, timestamp})
+(:Session {id, title, status, timestamp})
 
-### Relationships
-- `(:User)-[:HAS_CONVERSATION]->(:Conversation)`
-- `(:Conversation)-[:HAS_MESSAGE]->(:Message)`
-- `(:Conversation)-[:MENTIONS]->(:Entity)`
-- `(:Entity)-[:HAS_FACT]->(:Fact)`
-- `(:Fact)-[:RELATED_TO]->(:Entity)`
-- `(:Event)-[:AFFECTS]->(:System)`
-- `(:Event)-[:LED_TO]->(:Event)`
-- `(:System)-[:USES]->(:Software)`
-- `(:Session)-[:REVISITS]->(:Session)`
+// Edge Relationships
+(:User)-[:HAS_CONVERSATION]->(:Conversation)
+(:Conversation)-[:HAS_MESSAGE]->(:Message)
+(:Conversation)-[:MENTIONS]->(:System)
+(:Event)-[:AFFECTS]->(:System)
+(:Event)-[:LED_TO]->(:Event)
+(:System)-[:USES]->(:Software)
+(:Session)-[:REVISITS]->(:Session)
+```
 
 ---
 
 ## Automated Test Suite
 
-ContextGraph AI includes a complete automated test suite covering all 15 master engineering scenarios:
+ThreatNexus is verified with a comprehensive test suite covering all master agent scenarios:
 
 ```powershell
 pytest -v
 ```
 
-### Test Coverage Highlights:
-- **`test_text_message_submission`**: Validates chat query processing and response schema.
-- **`test_request_validation`**: Rejects invalid payloads with HTTP 422.
-- **`test_deterministic_intent_classification`**: Verifies greeting, help, systems, and memory commands.
-- **`test_honest_handling_of_unknown_questions`**: Guarantees zero hallucinations on unrecorded topics.
-- **`test_voice_transcript_endpoint`**: Verifies transcript processing and empty string rejection.
-- **`test_database_connection_failure_simulation`**: Verifies transparent failure reporting when DB is down.
-- **`test_successful_graph_writes_and_reads`**: Confirms real FalkorDB node creation and retrieval.
-- **`test_memory_search_endpoint` & `test_memory_deletion_endpoint`**: Verifies memory CRUD.
-- **`test_cross_conversation_fact_retrieval`**: Proves facts saved in Conversation A are accessible in Conversation B.
-- **`test_graph_endpoint_output`**: Validates React Flow graph payload format.
-- **`test_health_endpoints_accuracy`**: Confirms `/api/health` and `/api/health/database` reflect live status.
-- **`test_ollama_unavailable_fallback`**: Verifies graceful fallback to deterministic engine when Ollama is offline.
-- **`test_deterministic_mode_makes_no_model_requests`**: Enforces zero external HTTP requests in deterministic mode.
-- **`test_cors_and_api_error_handling`**: Checks CORS preflight headers and status codes.
+```text
+============================== 47 passed in 3.78s ==============================
+```
 
-**Result: 47 passed in 3.78s**
-
----
-
-## Frontend Web Experience
-
-The enterprise frontend is built with React 19, TypeScript, and Vite:
-
-1. **Overview Dashboard (`/`):** Live telemetry, system criticality distribution, incident events table, and graph statistics.
-2. **Voice Assistant (`/voice`):** Interactive holographic voice orb with glowing pulse animation, live transcript display, microphone control, speech synthesis audio narration, agent mode switcher, and live retrieved memory panel.
-3. **Chat History (`/history`):** Inspect persistent conversations and message transcripts stored in FalkorDB.
-4. **Graph Explorer (`/graph`):** Interactive React Flow canvas rendering real nodes and relationships from FalkorDB.
-5. **Persistent Memory (`/memory`):** Search, view, and delete stored facts and cross-session investigations with user confirmation.
-6. **Evidence & Explainability (`/explainability`):** 7-part epistemic classification of findings (`STORED_FACT`, `RULE_BASED_INFERENCE`, `HYPOTHESIS`, `UNKNOWN`).
-7. **Simulation Lab (`/simulation`):** Counterfactual what-if blast radius analysis and synthetic incident triggers.
-8. **System Health (`/health`):** Real-time diagnostics for FalkorDB, memory usage, and component statuses.
-9. **Settings (`/settings`):** Switch between Deterministic and Local Ollama engines, configure Ollama endpoints, and adjust speech narration parameters.
+- Guaranteed zero hallucinations in deterministic mode.
+- Validated graceful fallback when local Ollama is unreachable.
+- Automated tests for cross-conversation fact isolation and memory retrieval.
+- Cypher injection defense and bounded query security enforcement.
 
 ---
 
 ## Security & Privacy Policy
 
-- **Zero External AI Calls:** All agent reasoning runs locally. No message data or transcripts are ever transmitted to third-party AI APIs.
-- **Local Speech Processing:** Voice recognition and text-to-speech synthesis occur inside the user's browser via native Web Speech APIs. No raw audio is recorded or stored on the server.
-- **Bounded Query Safety:** All Cypher traversals use parameterized queries with enforced result limits and depth bounds (max 3 hops) to prevent denial-of-service.
-- **Data Deletion:** The user has full control over persisted memories via the `DELETE /api/memory/{id}` endpoint and UI confirmation dialogs.
+- **No Cloud AI APIs:** All agent processing happens locally. No data leaves your infrastructure.
+- **Local Browser Speech:** Voice transcription and audio playback run purely through browser APIs without external audio streaming.
+- **Parameterized Cypher:** Bounded graph traversals (maximum 3 hops) prevent Denial-of-Service or graph extraction exploits.
+- **Full Data Sovereignty:** Complete user control over graph data with explicit memory deletion endpoints.
 
 ---
 
-## License
+## Author & License
 
-MIT License. Designed and engineered for ContextGraph AI.
+Designed and maintained by **[Dhruva Khare](https://github.com/kharedhruva-tech)**.  
+Licensed under the [MIT License](LICENSE).
