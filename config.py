@@ -14,7 +14,7 @@ class AppConfig:
     GRAPH_NAME: str = os.getenv("GRAPH_NAME", "contextgraph")
     
     # Application & Agent bounds
-    APP_NAME: str = "ContextGraph AI"
+    APP_NAME: str = "ThreatNexus"
     APP_VERSION: str = "1.0.0-hackathon"
     ENVIRONMENT: str = "ContextGraph Simulation Lab (Synthetic)"
     MAX_TRAVERSAL_DEPTH: int = int(os.getenv("MAX_TRAVERSAL_DEPTH", "3"))
@@ -24,4 +24,11 @@ class AppConfig:
     MCP_HOST: str = os.getenv("MCP_HOST", "127.0.0.1")
     MCP_PORT: int = int(os.getenv("MCP_PORT", "8000"))
 
+    # Agent & Local Inference Settings (Zero paid APIs)
+    AGENT_MODE: str = os.getenv("AGENT_MODE", "deterministic")  # "deterministic" or "ollama"
+    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3:latest")
+    OLLAMA_TIMEOUT: float = float(os.getenv("OLLAMA_TIMEOUT", "30.0"))
+
 config = AppConfig()
+

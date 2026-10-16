@@ -7,7 +7,7 @@ import os
 from typing import Dict, Any, Optional, List
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -21,26 +21,71 @@ from remediation_service import remediation_service
 from debate_service import debate_service
 from export_service import export_service
 from webhook_service import webhook_service, SAMPLE_ALERTS
+from chat_service import chat_service
+from api_v1 import router as api_v1_router
+from datetime import datetime, timezone
 
 app = FastAPI(
-    title="ContextGraph AI Web Portal",
-    description="Persistent, Explainable, Graph-Powered Agent Web Platform",
+    title="ThreatNexus Web Portal",
+    description="Persistent, Explainable, Graph-Powered Threat Intelligence Platform",
     version=config.APP_VERSION
 )
 
-# Enable CORS for local development flexibility
+# Enable CORS for Next.js, Vite, and production origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Mount API v1 router for Next.js frontend integration
+app.include_router(api_v1_router)
+
+@app.get("/health")
+def get_root_health():
+    """Root health check for ping tester and uptime monitors."""
+    db_healthy, _ = db_manager.check_health()
+    return {
+        "status": "OPERATIONAL" if db_healthy else "DEGRADED",
+        "service": config.APP_NAME,
+        "database_connected": db_healthy,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
 # --- REQUEST MODELS ---
 class InvestigationRequest(BaseModel):
     query: str
     explicit_intent: Optional[str] = None
+
+class ChatRequest(BaseModel):
+    message: str
+    conversation_id: Optional[str] = None
+    agent_mode: Optional[str] = None
+    save_memory: Optional[bool] = True
+
+class VoiceTranscriptRequest(BaseModel):
+    transcript: str
+    confidence: Optional[float] = None
+    conversation_id: Optional[str] = None
+    agent_mode: Optional[str] = None
+
+class CreateMemoryRequest(BaseModel):
+    fact: str
+    entity: Optional[str] = None
+    category: Optional[str] = "general"
+    provenance: Optional[str] = "user_input"
 
 class WhatIfRequest(BaseModel):
     system_id: str
@@ -54,7 +99,130 @@ class DebateRequest(BaseModel):
 class PostMortemRequest(BaseModel):
     incident_id: str
 
-# --- API ENDPOINTS ---
+# --- HEALTH & CONFIGURATION ENDPOINTS ---
+
+@app.get("/api/health")
+def get_health():
+    """Returns general service health, agent mode, and FalkorDB connectivity."""
+    db_healthy, diag = db_manager.check_health()
+    return {
+        "status": "HEALTHY" if db_healthy else "DEGRADED",
+        "service": config.APP_NAME,
+        "version": config.APP_VERSION,
+        "agent_mode": config.AGENT_MODE,
+        "database_connected": db_healthy,
+        "falkordb_host": f"{config.FALKORDB_HOST}:{config.FALKORDB_PORT}",
+        "graph_name": config.GRAPH_NAME,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+@app.get("/api/health/database")
+def get_database_health():
+    """Returns honest FalkorDB connectivity and metrics."""
+    healthy, diag = db_manager.check_health()
+    if not healthy:
+        return {
+            "status": "DISCONNECTED",
+            "connected": False,
+            "host": config.FALKORDB_HOST,
+            "port": config.FALKORDB_PORT,
+            "graph_name": config.GRAPH_NAME,
+            "nodes": 0,
+            "edges": 0,
+            "error": diag.get("error")
+        }
+    return {
+        "status": "HEALTHY",
+        "connected": True,
+        "host": config.FALKORDB_HOST,
+        "port": config.FALKORDB_PORT,
+        "graph_name": config.GRAPH_NAME,
+        "nodes": diag.get("nodes", 0),
+        "edges": diag.get("edges", 0),
+        "error": None
+    }
+
+# --- CHAT & VOICE ENDPOINTS ---
+
+@app.post("/api/chat")
+def handle_chat(req: ChatRequest):
+    """Processes chat message using deterministic graph engine or local Ollama."""
+    try:
+        res = chat_service.chat(
+            message=req.message,
+            conversation_id=req.conversation_id,
+            agent_mode=req.agent_mode,
+            save_memory=req.save_memory if req.save_memory is not None else True
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/voice/transcript")
+def handle_voice_transcript(req: VoiceTranscriptRequest):
+    """Processes browser-recognized voice transcript."""
+    try:
+        res = chat_service.process_voice_transcript(
+            transcript=req.transcript,
+            confidence=req.confidence,
+            conversation_id=req.conversation_id,
+            agent_mode=req.agent_mode
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- MEMORY ENDPOINTS ---
+
+@app.get("/api/memory/search")
+def search_memories(q: str = "", limit: int = 20, category: Optional[str] = None):
+    """Searches persistent Fact nodes stored in FalkorDB."""
+    facts = chat_service.search_memory(q=q, limit=limit, category=category)
+    return {"status": "SUCCESS", "data": facts, "count": len(facts)}
+
+@app.post("/api/memory")
+def create_memory(req: CreateMemoryRequest):
+    """Persists a new Fact node into FalkorDB graph memory."""
+    try:
+        fact_node = chat_service.create_memory(
+            fact=req.fact,
+            entity=req.entity,
+            category=req.category,
+            provenance=req.provenance
+        )
+        return {"status": "SUCCESS", "data": fact_node}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/memory/{memory_id}")
+def delete_memory(memory_id: str):
+    """Deletes a Fact or Session node from FalkorDB."""
+    deleted = chat_service.delete_memory(memory_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail=f"Memory record '{memory_id}' not found in FalkorDB.")
+    return {"status": "SUCCESS", "deleted_id": memory_id, "message": "Memory record successfully deleted."}
+
+# --- GRAPH ENDPOINTS ---
+
+@app.get("/api/graph")
+def get_full_graph(limit: int = 150):
+    """Returns actual nodes and edges from FalkorDB for React Flow visualization."""
+    data = chat_service.get_full_graph(limit=limit)
+    return {"status": "SUCCESS", "data": data}
+
+@app.get("/api/conversations")
+def list_conversations(limit: int = 20):
+    """Lists persistent chat conversations stored in FalkorDB."""
+    convs = chat_service.list_conversations(limit=limit)
+    return {"status": "SUCCESS", "data": convs}
+
+@app.get("/api/conversations/{conv_id}")
+def get_conversation_messages(conv_id: str):
+    """Retrieves all messages for a specific conversation."""
+    msgs = chat_service.get_conversation(conv_id)
+    return {"status": "SUCCESS", "data": msgs}
+
+# --- LEGACY & SPECIALIZED INVESTIGATION ENDPOINTS ---
 
 @app.get("/api/status")
 def get_system_status():
@@ -150,19 +318,15 @@ def export_post_mortem(req: PostMortemRequest):
     md = export_service.generate_markdown_post_mortem(inv, runbook=rbk, whatif_report=whatif)
     return {"status": "SUCCESS", "markdown": md}
 
-# --- STATIC FILES FOR FRONTEND ---
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-os.makedirs(static_dir, exist_ok=True)
-
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-
+# --- GATEWAY & FRONTEND ROUTING ---
 @app.get("/")
 def serve_index():
-    """Serves the main single page web application."""
-    index_path = os.path.join(static_dir, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return HTMLResponse("<h1>ContextGraph AI Web Portal Loading...</h1>")
+    """Immediately redirects browser to the active Next.js frontend on port 3000."""
+    response = RedirectResponse(url="http://localhost:3000", status_code=307)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 if __name__ == "__main__":
     import sys

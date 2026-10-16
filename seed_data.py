@@ -57,6 +57,13 @@ def get_seed_cypher() -> str:
 
     // === SCENARIO B: CROSS-SESSION PROJECT CONTEXT ===
     MERGE (prj:Project {id: 'PRJ-APOLLO', name: 'Apollo-Syn Context Resilience', status: 'ACTIVE', priority: 'P1', start_date: '2026-03-01', scenario: 'Scenario_B'})
+    MERGE (cgPrj:Project {id: 'PRJ-CONTEXTGRAPH', name: 'ContextGraph AI', status: 'ACTIVE', priority: 'P0', description: 'Voice-enabled AI assistant with persistent graph memory backed by FalkorDB with zero paid AI APIs', scenario: 'Scenario_B'})
+    MERGE (cgF1:Fact {id: 'FACT-CG-01', text: 'ContextGraph AI is a voice-enabled persistent AI agent built with FastAPI, FalkorDB, React 19, and the Web Speech API.', category: 'project_meta', created_at: '2026-01-01T00:00:00Z'})
+    MERGE (cgF2:Fact {id: 'FACT-CG-02', text: 'ContextGraph AI operates with zero paid AI APIs, supporting deterministic graph retrieval and optional local offline Ollama models.', category: 'project_meta', created_at: '2026-01-01T00:00:00Z'})
+    MERGE (cgF3:Fact {id: 'FACT-CG-03', text: 'ContextGraph AI provides persistent cross-session graph memory for systems, events, investigations, and custom user facts.', category: 'project_meta', created_at: '2026-01-01T00:00:00Z'})
+    MERGE (cgPrj)-[:HAS_FACT]->(cgF1)
+    MERGE (cgPrj)-[:HAS_FACT]->(cgF2)
+    MERGE (cgPrj)-[:HAS_FACT]->(cgF3)
     
     // People
     MERGE (p1:Person {id: 'USR-ALICE', name: 'Alice Vance', role: 'Principal Architect', email: 'alice.v@synthlabs.local', scenario: 'Scenario_B'})
@@ -100,6 +107,29 @@ def get_seed_cypher() -> str:
     MERGE (t2)-[:LED_TO]->(e1)
     MERGE (e1)-[:OCCURRED_DURING]->(t1)
     MERGE (e2)-[:LED_TO]->(t5)
+
+    // === SCENARIO D: CYBERSECURITY THREAT TOPOLOGY ===
+    MERGE (ce101:Host {id: 'E-101', name: 'Host-Finance-01', label: 'Host-Finance-01', riskLevel: 'CRITICAL', ip: '10.100.4.15', os: 'Windows Server 2022', scenario: 'Cyber_APT41'})
+    MERGE (ce102:Database {id: 'E-102', name: 'SQL-PROD-09', label: 'SQL-PROD-09', riskLevel: 'CRITICAL', ip: '10.200.12.88', port: 5432, scenario: 'Cyber_APT41'})
+    MERGE (ce103:File_Artifact {id: 'E-103', name: 'svchost_updater.dll', label: 'svchost_updater.dll', riskLevel: 'HIGH', path: 'C:\\\\Windows\\\\Temp\\\\svchost_updater.dll', scenario: 'Cyber_APT41'})
+    MERGE (ce104:IP_Address {id: 'E-104', name: '185.220.101.42', label: '185.220.101.42', riskLevel: 'HIGH', protocol: 'TLSv1.3', scenario: 'Cyber_APT41'})
+    MERGE (ce105:User_Account {id: 'E-105', name: 'svc_backup', label: 'svc_backup', riskLevel: 'CRITICAL', scenario: 'Cyber_APT41'})
+    MERGE (ce106:Process {id: 'E-106', name: 'powershell.exe (4128)', label: 'PID 4128 (powershell.exe)', riskLevel: 'HIGH', scenario: 'Cyber_APT41'})
+    MERGE (ce107:Vulnerability {id: 'E-107', name: 'CVE-2024-38077', label: 'CVE-2024-38077', riskLevel: 'CRITICAL', scenario: 'Cyber_APT41'})
+    MERGE (ce108:Host {id: 'E-108', name: 'DC-PRIMARY-01', label: 'DC-PRIMARY-01', riskLevel: 'HIGH', ip: '10.100.1.10', scenario: 'Cyber_APT41'})
+    MERGE (ce109:Domain {id: 'E-109', name: 'SYNTHLABS.LOCAL', label: 'SYNTHLABS.LOCAL', riskLevel: 'MEDIUM', scenario: 'Cyber_APT41'})
+    MERGE (ce110:Process {id: 'E-110', name: 'backup_agent.exe', label: 'backup_agent.exe', riskLevel: 'MEDIUM', scenario: 'Cyber_APT41'})
+
+    MERGE (ce107)-[:EXPLOITED {id: 'R-201', riskLevel: 'CRITICAL', label: 'EXPLOITED'}]->(ce101)
+    MERGE (ce101)-[:SPAWNED_PROCESS {id: 'R-202', riskLevel: 'HIGH', label: 'SPAWNED_PROCESS'}]->(ce106)
+    MERGE (ce106)-[:STORED_ON {id: 'R-203', riskLevel: 'HIGH', label: 'DROPPED_FILE'}]->(ce103)
+    MERGE (ce103)-[:COMMUNICATED_WITH {id: 'R-204', riskLevel: 'HIGH', label: 'C2_BEACON'}]->(ce104)
+    MERGE (ce101)-[:ACCESSED_CREDENTIAL {id: 'R-205', riskLevel: 'CRITICAL', label: 'KERBEROASTED'}]->(ce105)
+    MERGE (ce105)-[:AUTHENTICATED_TO {id: 'R-206', riskLevel: 'HIGH', label: 'TGS_REQUEST'}]->(ce108)
+    MERGE (ce108)-[:AUTHENTICATED_TO {id: 'R-207', riskLevel: 'LOW', label: 'DOMAIN_MEMBER'}]->(ce109)
+    MERGE (ce110)-[:SPAWNED_PROCESS {id: 'R-208', riskLevel: 'MEDIUM', label: 'LOADS_LIBRARY'}]->(ce103)
+    MERGE (ce101)-[:LATERAL_MOVEMENT_TO {id: 'R-209', riskLevel: 'CRITICAL', label: 'LATERAL_PIVOT'}]->(ce102)
+    MERGE (ce105)-[:AUTHENTICATED_TO {id: 'R-210', riskLevel: 'CRITICAL', label: 'DATABASE_LOGON'}]->(ce102)
     """
 
 def seed_database(reset_existing: bool = False) -> Dict[str, Any]:

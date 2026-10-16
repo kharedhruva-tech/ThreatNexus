@@ -6,7 +6,6 @@ from typing import Tuple, Dict, Any, Optional
 import falkordb
 from falkordb import FalkorDB
 from config import config
-
 class DatabaseConnectionError(Exception):
     """Raised when FalkorDB is unreachable or rejects the connection."""
     pass

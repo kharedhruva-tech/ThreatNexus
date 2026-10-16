@@ -1,279 +1,280 @@
-# ContextGraph AI — Persistent, Explainable, Graph-Powered Agent Simulation
+# ContextGraph AI — Voice-Enabled Persistent AI Agent with FalkorDB
+## Zero Paid AI APIs — Local-First Graph Memory Platform
 
-**Project Category:** Graph Hacks — Track 1: Agents That Act on Connected Data  
-**Primary Language:** Python  
-**Primary Graph Database:** FalkorDB  
-**Application Framework:** Streamlit  
-**Agent Architecture:** Deterministic, Tool-Using Python Agent  
-**Integration Standard:** Model Context Protocol (MCP)  
-**Testing Framework:** pytest (26 / 26 tests passing)  
-**Cost Constraint:** 100% Zero-Cost Operation (No LLM API keys required)
-
----
-
-## 30-Second Elevator Pitch
-> Traditional AI agent memory is session-bound, flat, and amnesic. When a new incident occurs, agents either re-investigate from scratch or hallucinate connections between disconnected records. **ContextGraph AI** changes this by anchoring an agent's memory, tools, and reasoning in **FalkorDB**. Using real openCypher traversals, ContextGraph AI discovers multi-hop dependency chains, persists investigations as graph nodes across restarts, reuses prior session findings with mathematical traceability, and provides a 7-part epistemic explanation for every conclusion—all with zero external LLM API costs.
+[![Tests Passing](https://img.shields.io/badge/pytest-47%20passed-brightgreen.svg)](tests/)
+[![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
+[![FalkorDB](https://img.shields.io/badge/database-FalkorDB-red.svg)](https://falkordb.com)
+[![React](https://img.shields.io/badge/frontend-React%20%7C%20Vite%20%7C%20TypeScript-blue.svg)](frontend/)
+[![Speech](https://img.shields.io/badge/voice-Web%20Speech%20API-purple.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ---
 
-## 1. Problem Statement
-Autonomous agents operating in security operations, SRE incident response, and software architecture face fundamental context limitations:
-1. **Session Amnesia:** When an agent session ends, discoveries are lost or relegated to unstructured chat logs.
-2. **Disconnected Records:** Relational tables and vector databases struggle with multi-hop graph hops (e.g., Event -> System -> Dependency -> Vulnerability).
-3. **Repeated Investigations:** An agent examining downstream failure E-102 investigates from scratch, unaware that upstream failure E-101 was already analyzed 20 minutes earlier.
-4. **Unexplained Conclusions:** Generic LLM responses offer confidence percentages without citing verifiable graph paths or epistemic rules.
+## 30-Second Overview
+
+**ContextGraph AI** is a complete, voice-enabled AI assistant with persistent graph memory, contextual retrieval, and optional local LLM integration. 
+
+Unlike traditional session-bound agents that suffer from amnesia, ContextGraph AI anchors all memories, entities, conversations, and investigations in **FalkorDB**. Using native openCypher graph queries, it retrieves relevant facts and historical context across conversations and application restarts.
+
+- **Deterministic Agent Engine (Default):** Operates 100% deterministically without external model calls, avoiding hallucinations and cloud API charges.
+- **Optional Local LLM (Mode B):** Offline integration with local Ollama instances, strictly grounded on retrieved FalkorDB graph facts with graceful deterministic fallback.
+- **Browser Voice Recognition & Synthesis:** Converts microphone speech into text locally and speaks assistant responses aloud using browser speech APIs.
+- **Enterprise Web Interface:** Deep navy/cyan cyber interface featuring an animated holographic voice orb, React Flow graph explorer, persistent memory manager, and incident console.
 
 ---
 
-## 2. Solution: ContextGraph AI
-ContextGraph AI establishes a persistent, explainable graph simulation lab:
-- **Real Graph Storage in FalkorDB:** All systems, events, software, sessions, investigations, findings, and evidence are stored as native graph nodes in FalkorDB.
-- **Bounded Multi-Hop Cypher Reasoning:** Explores 1-to-3 hop paths connecting incidents to dependencies.
-- **Persistent Cross-Session Memory:** Sessions survive full application restarts. When a new session begins, the agent queries FalkorDB for prior relevant context.
-- **Context Reuse Engine:** Evaluates reuse eligibility (`REUSED_CONTEXT`, `EXTENDED_INVESTIGATION`, `FRESH_INVESTIGATION`, `CONTRADICTED_PRIOR_FINDING`), linking new sessions to prior ones via `(:Session)-[:REVISITS]->(:Session)`.
-- **7-Part Traceable Explainability:** Categorizes facts into `STORED_FACT`, `RULE_BASED_INFERENCE`, `HYPOTHESIS`, and `UNKNOWN`.
-- **Model Context Protocol (MCP):** Exposes all domain tools via FastMCP for integration into Claude Desktop or other MCP-compatible clients.
-- **Zero API Key Policy:** Operates completely deterministically without OpenAI, Anthropic, or Gemini API keys.
-
----
-
-## 3. Architecture Overview
+## Architecture Overview
 
 ```mermaid
 graph TD
-    subgraph Presentation Layer
-        Streamlit[Streamlit 7-Page Dashboard]
+    subgraph Frontend [Enterprise Web Client (React 19 + TypeScript + Vite)]
+        Voice[Holographic Voice Orb & Web Speech API]
+        Composer[Text Message Composer]
+        Canvas[React Flow Graph Explorer]
+        MemUI[Persistent Memory Manager]
+        HealthUI[Live System & DB Health]
     end
 
-    subgraph Integration Layer
-        MCP[FastMCP Server stdio]
+    subgraph Backend [FastAPI REST Gateway (127.0.0.1:8080)]
+        API_Health["GET /api/health & /api/health/database"]
+        API_Chat["POST /api/chat"]
+        API_Voice["POST /api/voice/transcript"]
+        API_Mem["GET/POST/DELETE /api/memory"]
+        API_Graph["GET /api/graph"]
     end
 
-    subgraph Agent Layer
+    subgraph AgentEngine [Agent Reasoning Layer]
         Router[Deterministic Intent Router]
-        Agent[ContextGraph Agent]
+        ChatSvc[Chat & Voice Service]
+        DetEngine[Deterministic Graph Engine]
+        OllamaEngine[Local Ollama Bridge (Optional)]
     end
 
-    subgraph Domain Services
-        GS[Graph Service]
-        MS[Memory Service]
-        ES[Evidence Service]
-        SE[Simulation Engine]
+    subgraph Persistence [Graph Database Layer]
+        Falkor[(FalkorDB 127.0.0.1:6379)]
+        UserNodes[User & Conversation Nodes]
+        MsgNodes[Message Nodes]
+        FactNodes[Fact & Memory Nodes]
+        SystemNodes[System, Software, Event Nodes]
     end
 
-    subgraph Persistence Layer
-        FalkorDB[(FalkorDB Graph Database)]
-        Disk[(Durable Storage /data)]
-    end
-
-    Streamlit --> Agent
-    Streamlit --> GS
-    Streamlit --> MS
-    Streamlit --> SE
-    MCP --> Agent
-    MCP --> GS
-    MCP --> MS
-
-    Agent --> Router
-    Agent --> GS
-    Agent --> MS
-    Agent --> ES
-
-    GS --> FalkorDB
-    MS --> FalkorDB
-    SE --> FalkorDB
-    FalkorDB --> Disk
+    Voice -->|Audio Speech to Text| API_Voice
+    Composer -->|JSON Payload| API_Chat
+    API_Voice --> ChatSvc
+    API_Chat --> ChatSvc
+    ChatSvc --> Router
+    Router --> DetEngine
+    Router -.->|Opt-in| OllamaEngine
+    DetEngine -->|openCypher Query| Falkor
+    OllamaEngine -->|Grounding Context| Falkor
+    Falkor --> UserNodes
+    Falkor --> MsgNodes
+    Falkor --> FactNodes
+    Falkor --> SystemNodes
+    Canvas -->|Fetch Graph Topology| API_Graph
+    API_Graph --> Falkor
+    MemUI --> API_Mem
+    API_Mem --> Falkor
 ```
 
 ---
 
-## 4. Graph Schema & Epistemic Model
+## Root Cause Diagnosis & Fixes Implemented
 
-### Node Labels (14)
-`Person`, `Organization`, `Project`, `System`, `Software`, `Event`, `Record`, `Document`, `Task`, `Session`, `Investigation`, `Finding`, `Evidence`, `Decision`
+Prior to this implementation, the frontend encountered a **"Failed to fetch"** error. Investigation revealed two root causes:
 
-### Relationship Types (15)
-`WORKS_WITH`, `BELONGS_TO`, `OWNS`, `USES`, `DEPENDS_ON`, `AFFECTS`, `RELATED_TO`, `REFERENCED_IN`, `OCCURRED_DURING`, `RECORDED_IN`, `SUPPORTED_BY`, `LED_TO`, `DISCOVERED_IN`, `REVISITS`, `DERIVED_FROM`
-
-### Epistemic Classifications
-- **`STORED_FACT`**: Stored directly in FalkorDB records or relationships.
-- **`RULE_BASED_INFERENCE`**: Derived deterministically using a documented rule.
-- **`HYPOTHESIS`**: Incomplete observation where root-cause telemetry is absent.
-- **`UNKNOWN`**: Explicitly unobserved properties.
+1. **Python Dependency Mismatch in FastAPI/Starlette:**  
+   `starlette 1.8.0` was installed alongside `fastapi 0.110.0`. In Starlette 0.46+, `on_startup` was removed from `Router.__init__`, causing `server.py` to crash immediately on startup with `TypeError: Router.__init__() got an unexpected keyword argument 'on_startup'`. Upgrading `fastapi>=0.115.0` resolved the conflict and restored server functionality.
+2. **Missing Host Port Mapping in FalkorDB Container:**  
+   The FalkorDB container was running in WSL without publishing port 6379 to the host (`-p 6379:6379`). Windows connections to `127.0.0.1:6379` were actively refused. Re-creating the container with `-p 6379:6379` and establishing a keep-alive background worker restored direct Cypher execution.
 
 ---
 
-## 5. Prerequisites & Environment
-- **Operating System:** Windows, Linux, or macOS.
-- **Python:** Python 3.10+ (tested on Python 3.11.9).
-- **FalkorDB:** Running locally on port `6379` via Docker or local service.
+## Quickstart Guide
 
----
+### Prerequisites
 
-## 6. Installation & Quick Start
+- Python 3.10+
+- Node.js 18+ and npm
+- Docker or WSL 2 with Docker installed
+- Windows PowerShell or Bash terminal
 
-### Step 1: Clone Repository & Create Virtual Environment
-```bash
-git clone https://github.com/your-repo/contextgraph-ai.git
-cd contextgraph-ai
+### 1. Start FalkorDB
 
-# Windows (PowerShell)
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+Run the official FalkorDB Docker container with persistent volume and port mapping:
 
-# Linux / macOS
-python3 -m venv venv
-source venv/bin/activate
+```powershell
+docker run -d --name falkordb -p 6379:6379 -v falkordb_data:/data --restart always falkordb/falkordb:latest
 ```
 
-### Step 2: Install Dependencies
+*If using WSL Ubuntu:*
 ```bash
-pip install -r requirements.txt
+wsl -d Ubuntu -u root -- docker run -d --name falkordb -p 6379:6379 -v falkordb_data:/data --restart always falkordb/falkordb:latest
 ```
 
-### Step 3: Launch FalkorDB
-Using Docker Compose:
-```bash
-docker compose up -d
+Verify connection:
+```powershell
+python verify_falkordb.py
 ```
-*(On Windows environments using WSL2, the container runs in WSL with durable storage mapped to `6379`).*
 
-### Step 4: Seed Synthetic Graph Data
-```bash
+### 2. Seed the Graph Database
+
+Initialize the schema, constraints, indices, and baseline synthetic topology:
+
+```powershell
 python seed_data.py
 ```
-*Output: `{'status': 'SEEDED_SUCCESSFULLY', 'nodes': 26, 'edges': 35, 'indices': 11}`*
 
-### Step 5: Launch Streamlit Dashboard
-```bash
-streamlit run app.py
+### 3. Start the Backend Server
+
+Start the FastAPI server on `http://127.0.0.1:8080`:
+
+```powershell
+python -m uvicorn server:app --host 127.0.0.1 --port 8080 --reload
 ```
-Open your browser at `http://localhost:8501`.
+
+Test health endpoints:
+```powershell
+curl http://127.0.0.1:8080/api/health
+curl http://127.0.0.1:8080/api/health/database
+```
+
+### 4. Start the Frontend Application
+
+In a separate terminal, start the Vite development server:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open your browser to:
+- **Frontend Development Portal:** `http://localhost:5173/voice`
+- **FastAPI Direct Production Portal:** `http://127.0.0.1:8080/`
 
 ---
 
-## 7. Model Context Protocol (MCP) Server
+## Agent Operating Modes
 
-ContextGraph AI includes a standalone MCP server using the official Python FastMCP SDK.
+### Mode A: Deterministic Agent (Default)
 
-### Run MCP Server
-```bash
-python mcp_server.py
-```
+- No external LLM or cloud API keys required.
+- Intent classification through regex patterns and deterministic rules.
+- Directly retrieves facts, systems, software dependencies, and chronological timelines from FalkorDB.
+- Transparently reports when requested information is absent rather than guessing or hallucinating.
+- Persists conversations, user prompts, agent answers, and extracted facts into FalkorDB.
 
-### Configure in Claude Desktop (`claude_desktop_config.json`)
-```json
-{
-  "mcpServers": {
-    "contextgraph": {
-      "command": "python",
-      "args": ["d:/PROJECT/ai-agent/mcp_server.py"]
-    }
-  }
-}
-```
+### Mode B: Optional Local Ollama LLM (Offline)
 
-### Exposed MCP Tools
-- `search_entities(keyword, limit)`
-- `get_entity_details(entity_id)`
-- `find_related_records(entity_id, limit)`
-- `trace_multi_hop_relationships(start_id, end_id, max_depth, limit)`
-- `retrieve_previous_context(target_entity_id, query)`
-- `reconstruct_incident_timeline()`
-- `run_agent_investigation(user_request)`
+- Opt-in integration via the Settings page or setting `AGENT_MODE=ollama`.
+- Queries FalkorDB first to retrieve ground-truth graph facts.
+- Constructs a grounded prompt sent to local Ollama (`http://127.0.0.1:11434/api/generate`).
+- If Ollama is offline or times out, it provides a transparent notice and seamlessly falls back to the deterministic engine.
+- Never calls paid cloud APIs (no OpenAI, Anthropic, or external telemetry).
 
 ---
 
-## 8. Automated Test Suite
+## REST API Reference
 
-Run all unit, integration, and E2E demo tests using `pytest`:
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Returns service health, version, agent mode, and DB status |
+| `GET` | `/api/health/database` | Returns live FalkorDB connectivity, node count, edge count |
+| `POST` | `/api/chat` | Main chat endpoint supporting deterministic and Ollama modes |
+| `POST` | `/api/voice/transcript` | Validates speech recognition transcript and routes to chat engine |
+| `GET` | `/api/memory/search` | Searches persistent Fact nodes in FalkorDB (`?q=...`) |
+| `POST` | `/api/memory` | Creates a new Fact node linked to entities or projects |
+| `DELETE` | `/api/memory/{memory_id}` | Deletes a Fact or Session node by ID |
+| `GET` | `/api/graph` | Returns full graph topology for React Flow visualization |
+| `GET` | `/api/conversations` | Lists stored conversation threads |
+| `GET` | `/api/conversations/{conv_id}` | Retrieves ordered messages for a conversation |
+| `GET` | `/api/status` | Legacy health check with session counts |
+| `POST` | `/api/agent/investigate` | Full 7-part explainable agent investigation |
+| `GET` | `/api/graph/subgraph` | Bounded subgraph extraction surrounding an entity |
+| `GET` | `/api/graph/timeline` | Causal chronological incident timeline |
+| `POST` | `/api/simulation/whatif` | Counterfactual blast radius outage simulator |
+| `POST` | `/api/debate` | Dual-agent adversarial SRE debate |
 
-```bash
+---
+
+## FalkorDB Memory Schema
+
+### Node Labels
+- `:User` — Operator identity (`id`, `name`, `created_at`).
+- `:Conversation` — Conversation thread (`id`, `title`, `created_at`, `updated_at`).
+- `:Message` — Message turn (`id`, `sender`, `text`, `agent_mode`, `timestamp`).
+- `:Fact` — Atomic memory item (`id`, `text`, `category`, `provenance`, `created_at`).
+- `:Entity` — System, Software, Event, or Record entities in the topology.
+- `:System`, `:Software`, `:Event`, `:Record` — Domain topology nodes.
+- `:Session`, `:Investigation`, `:Finding`, `:Evidence` — Investigation explainability nodes.
+
+### Relationships
+- `(:User)-[:HAS_CONVERSATION]->(:Conversation)`
+- `(:Conversation)-[:HAS_MESSAGE]->(:Message)`
+- `(:Conversation)-[:MENTIONS]->(:Entity)`
+- `(:Entity)-[:HAS_FACT]->(:Fact)`
+- `(:Fact)-[:RELATED_TO]->(:Entity)`
+- `(:Event)-[:AFFECTS]->(:System)`
+- `(:Event)-[:LED_TO]->(:Event)`
+- `(:System)-[:USES]->(:Software)`
+- `(:Session)-[:REVISITS]->(:Session)`
+
+---
+
+## Automated Test Suite
+
+ContextGraph AI includes a complete automated test suite covering all 15 master engineering scenarios:
+
+```powershell
 pytest -v
 ```
 
-### Verified Test Results:
-```text
-tests/test_agent.py::test_intent_router_investigate PASSED               [  3%]
-tests/test_agent.py::test_intent_router_retrieve_context PASSED          [  7%]
-tests/test_agent.py::test_intent_router_timeline PASSED                  [ 11%]
-tests/test_agent.py::test_intent_router_ambiguous PASSED                 [ 15%]
-tests/test_agent.py::test_agent_investigate_e101_execution PASSED        [ 19%]
-tests/test_e2e_demo.py::test_full_e2e_demo_workflow PASSED               [ 23%]
-tests/test_evidence.py::test_create_evidence_item PASSED                 [ 26%]
-tests/test_evidence.py::test_7_part_explanation_format PASSED            [ 30%]
-tests/test_graph_queries.py::test_database_health PASSED                 [ 34%]
-tests/test_graph_queries.py::test_search_entities PASSED                 [ 38%]
-tests/test_graph_queries.py::test_get_entity_details PASSED              [ 42%]
-tests/test_graph_queries.py::test_find_related_records PASSED            [ 46%]
-tests/test_graph_queries.py::test_multi_hop_traversal PASSED             [ 50%]
-tests/test_graph_queries.py::test_subgraph_extraction PASSED             [ 53%]
-tests/test_graph_queries.py::test_incident_timeline PASSED               [ 57%]
-tests/test_mcp.py::test_mcp_search_entities PASSED                       [ 61%]
-tests/test_mcp.py::test_mcp_get_entity_details PASSED                    [ 65%]
-tests/test_mcp.py::test_mcp_trace_multi_hop PASSED                       [ 69%]
-tests/test_mcp.py::test_mcp_timeline PASSED                              [ 73%]
-tests/test_mcp.py::test_mcp_investigation_agent PASSED                   [ 76%]
-tests/test_memory.py::test_save_and_retrieve_session PASSED              [ 80%]
-tests/test_memory.py::test_evaluate_context_reuse_not_found PASSED       [ 84%]
-tests/test_memory.py::test_evaluate_context_reuse_existing PASSED        [ 88%]
-tests/test_simulation.py::test_available_simulation_events PASSED        [ 92%]
-tests/test_simulation.py::test_trigger_simulation_event PASSED           [ 96%]
-tests/test_simulation.py::test_simulation_activity_log PASSED            [100%]
+### Test Coverage Highlights:
+- **`test_text_message_submission`**: Validates chat query processing and response schema.
+- **`test_request_validation`**: Rejects invalid payloads with HTTP 422.
+- **`test_deterministic_intent_classification`**: Verifies greeting, help, systems, and memory commands.
+- **`test_honest_handling_of_unknown_questions`**: Guarantees zero hallucinations on unrecorded topics.
+- **`test_voice_transcript_endpoint`**: Verifies transcript processing and empty string rejection.
+- **`test_database_connection_failure_simulation`**: Verifies transparent failure reporting when DB is down.
+- **`test_successful_graph_writes_and_reads`**: Confirms real FalkorDB node creation and retrieval.
+- **`test_memory_search_endpoint` & `test_memory_deletion_endpoint`**: Verifies memory CRUD.
+- **`test_cross_conversation_fact_retrieval`**: Proves facts saved in Conversation A are accessible in Conversation B.
+- **`test_graph_endpoint_output`**: Validates React Flow graph payload format.
+- **`test_health_endpoints_accuracy`**: Confirms `/api/health` and `/api/health/database` reflect live status.
+- **`test_ollama_unavailable_fallback`**: Verifies graceful fallback to deterministic engine when Ollama is offline.
+- **`test_deterministic_mode_makes_no_model_requests`**: Enforces zero external HTTP requests in deterministic mode.
+- **`test_cors_and_api_error_handling`**: Checks CORS preflight headers and status codes.
 
-============================= 26 passed in 0.89s ==============================
-```
+**Result: 47 passed in 3.78s**
 
 ---
 
-## 9. Required End-to-End Demonstration Walkthrough
+## Frontend Web Experience
 
-Follow the workflow: **"From Fragmented Records to Persistent, Explainable Context"**
-See detailed judge script in [`docs/demo_script.md`](docs/demo_script.md).
+The enterprise frontend is built with React 19, TypeScript, and Vite:
 
-1. **Step A — Initialize Simulation:** Seed known synthetic systems, records, and events.
-2. **Step B — Investigate Event E-101:** Run query. Agent executes Cypher traversals in FalkorDB, establishes multi-hop vulnerability link, formulates findings, and persists session `SESS-XXXX`.
-3. **Step C — Verify Persistence:** Open **Memory & Sessions**. The session and its findings exist as permanent graph nodes.
-4. **Step D — Investigate Event E-102:** Run query *"What did we discover earlier, and is that information relevant to Event E-102?"*. Agent queries FalkorDB, identifies prior session `SESS-XXXX`, classifies status as `REUSED_CONTEXT` / `EXTENDED_INVESTIGATION`, reuses prior findings, and traces downstream dependency failure `SYS-PAY-02 -> SYS-AUTH-01`.
-5. **Step E — Inspect Explainability:** Open **Explainability** to view the 7-part explanation, rule ID, and missing unobserved telemetry.
-6. **Step F — Trace Multi-Hop Path:** In **Graph Explorer**, trace `E-101 -> SW-LIBCRYPTO-21` to visualize the exact Cypher path.
-7. **Step G — Review Persistent State:** Review the connected web of sessions and investigations in FalkorDB.
-
----
-
-## 10. Key Differentiators
-
-| Capability | Generic LLM Agent | Vector RAG Agent | ContextGraph AI (Ours) |
-| :--- | :--- | :--- | :--- |
-| **Primary Context Engine** | Chat Buffer (Session-Bound) | Flat Text Chunks (KNN) | **Native FalkorDB Graph** |
-| **Multi-Hop Traversal** | Hallucinated / Prone to drift | Poor (No relational hops) | **Deterministic Cypher Paths** |
-| **Cross-Session Memory** | Amnesic after restart | Unstructured document store | **First-class Graph Session Nodes** |
-| **Context Reuse Detection**| None (Re-analyzes from scratch)| Chunk similarity match | **Topological & Causal Relevance** |
-| **Explainability** | Fabricated confidence % | Quote chunk snippet | **7-Part Epistemic Proof & Rules** |
-| **Operating Cost** | Paid token billing | Vector DB + Embedding billing | **100% Free Local Execution** |
+1. **Overview Dashboard (`/`):** Live telemetry, system criticality distribution, incident events table, and graph statistics.
+2. **Voice Assistant (`/voice`):** Interactive holographic voice orb with glowing pulse animation, live transcript display, microphone control, speech synthesis audio narration, agent mode switcher, and live retrieved memory panel.
+3. **Chat History (`/history`):** Inspect persistent conversations and message transcripts stored in FalkorDB.
+4. **Graph Explorer (`/graph`):** Interactive React Flow canvas rendering real nodes and relationships from FalkorDB.
+5. **Persistent Memory (`/memory`):** Search, view, and delete stored facts and cross-session investigations with user confirmation.
+6. **Evidence & Explainability (`/explainability`):** 7-part epistemic classification of findings (`STORED_FACT`, `RULE_BASED_INFERENCE`, `HYPOTHESIS`, `UNKNOWN`).
+7. **Simulation Lab (`/simulation`):** Counterfactual what-if blast radius analysis and synthetic incident triggers.
+8. **System Health (`/health`):** Real-time diagnostics for FalkorDB, memory usage, and component statuses.
+9. **Settings (`/settings`):** Switch between Deterministic and Local Ollama engines, configure Ollama endpoints, and adjust speech narration parameters.
 
 ---
 
-## 11. Short Demo Video Storyboard (60s)
-- **0:00 - 0:10:** Problem hook: Agent memory is broken, flat, and amnesic. Introducing ContextGraph AI.
-- **0:10 - 0:25:** Step B: Investigate Event E-101. Show real-time Cypher traversal connecting E-101 to LibCrypto CVE. Show session saved into FalkorDB.
-- **0:25 - 0:45:** Step D: Investigate Event E-102. Show FalkorDB retrieving previous session context, displaying the "Reused Context" banner, and proving downstream failure propagation.
-- **0:45 - 0:55:** Step E: Show 7-part explainability, distinguishing Stored Facts from Inferences.
-- **0:55 - 1:00:** Show 26/26 tests passing and zero-API-key policy badge.
+## Security & Privacy Policy
+
+- **Zero External AI Calls:** All agent reasoning runs locally. No message data or transcripts are ever transmitted to third-party AI APIs.
+- **Local Speech Processing:** Voice recognition and text-to-speech synthesis occur inside the user's browser via native Web Speech APIs. No raw audio is recorded or stored on the server.
+- **Bounded Query Safety:** All Cypher traversals use parameterized queries with enforced result limits and depth bounds (max 3 hops) to prevent denial-of-service.
+- **Data Deletion:** The user has full control over persisted memories via the `DELETE /api/memory/{id}` endpoint and UI confirmation dialogs.
 
 ---
 
-## 12. Public GitHub Release-Readiness Checklist
-- [x] Zero hardcoded secrets, API keys, or private paths.
-- [x] `.env.example`, `.gitignore`, and `requirements.txt` included.
-- [x] Real FalkorDB graph persistence verified on live container.
-- [x] All 26 pytest unit and integration tests passing.
-- [x] MCP server implemented and verified via FastMCP SDK.
-- [x] Streamlit 7-page dashboard fully functional.
-- [x] Architecture, schema, and demo documentation finalized.
-- [x] All claims verified by test executions.
+## License
 
----
-
-## 13. License
-Licensed under the Apache 2.0 License. Fictional synthetic data generated exclusively for ContextGraph Simulation Lab.
+MIT License. Designed and engineered for ContextGraph AI.

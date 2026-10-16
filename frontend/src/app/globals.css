@@ -1,0 +1,477 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #04060f;
+    --bg-secondary: #060a18;
+    --bg-card: rgba(8, 13, 26, 0.55);
+    --border-glass: rgba(255, 255, 255, 0.07);
+    --border-glass-highlight: rgba(6, 182, 212, 0.35);
+    --accent-cyan: #06b6d4;
+    --accent-teal: #14b8a6;
+    --accent-indigo: #6366f1;
+    --foreground: #f1f5f9;
+    --foreground-muted: #94a3b8;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--foreground);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* Rich layered background glow that shows through glass panels */
+    background-image: 
+      radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 55%, rgba(99, 102, 241, 0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 10% 80%, rgba(20, 184, 166, 0.09) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 70%);
+    background-attachment: fixed;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIQUID GLASS SYSTEM — True translucency with backdrop-filter
+   ═══════════════════════════════════════════════════════════ */
+
+/* Base glass: clearly translucent, bg glow shows through */
+.liquid-glass {
+  background: rgba(8, 14, 28, 0.52);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Interactive glass: hover reveals translucency more */
+.liquid-glass-interactive {
+  background: rgba(8, 14, 28, 0.48);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.liquid-glass-interactive:hover {
+  background: rgba(12, 22, 44, 0.62);
+  border-color: rgba(6, 182, 212, 0.42);
+  box-shadow: 
+    0 16px 48px 0 rgba(0, 0, 0, 0.6),
+    0 0 28px -4px rgba(6, 182, 212, 0.28),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.liquid-glass-interactive:active {
+  transform: translateY(0px) scale(0.995);
+  transition-duration: 0.1s;
+}
+
+/* Active / selected state */
+.liquid-glass-active {
+  background: rgba(10, 26, 52, 0.72);
+  border-color: rgba(6, 182, 212, 0.6);
+  box-shadow: 
+    0 0 30px -4px rgba(6, 182, 212, 0.35),
+    inset 0 1px 0 0 rgba(34, 211, 238, 0.4),
+    inset 0 -1px 0 0 rgba(6, 182, 212, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SPATIAL GLASS TILES — Deeper translucency for hover glow
+   ═══════════════════════════════════════════════════════════ */
+
+.spatial-glass-tile {
+  background: rgba(6, 11, 24, 0.50);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(6, 182, 212, 0.22);
+  box-shadow: 
+    0 16px 44px -8px rgba(0, 0, 0, 0.75),
+    0 0 22px -6px rgba(6, 182, 212, 0.18),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.04),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.02);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spatial-glass-tile:hover {
+  background: rgba(10, 18, 38, 0.65);
+  border-color: rgba(34, 211, 238, 0.48);
+  box-shadow: 
+    0 22px 56px -8px rgba(0, 0, 0, 0.85),
+    0 0 36px -4px rgba(6, 182, 212, 0.32),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.spatial-glass-tile:active {
+  transform: translateY(0px) scale(0.997);
+  transition-duration: 0.1s;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TILE MODAL GLASS — class used by inline styles in TileExpandModal
+   ═══════════════════════════════════════════════════════════ */
+
+/*
+  NOTE: The actual TileExpandModal now uses inline styles for the panel
+  so that backdrop-filter samples the dashboard (not the overlay).
+  These CSS classes serve as fallbacks / for other modal usages.
+*/
+.tile-modal-glass {
+  background: rgba(18, 28, 44, 0.52);
+  backdrop-filter: blur(26px) saturate(160%) brightness(1.12);
+  -webkit-backdrop-filter: blur(26px) saturate(160%) brightness(1.12);
+  border: 1px solid rgba(6, 182, 212, 0.32);
+  box-shadow:
+    0 32px 80px -8px rgba(0, 0, 0, 0.75),
+    0 0 48px -10px rgba(6, 182, 212, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Backdrop overlay — sibling to panel, dims the dashboard */
+.tile-modal-backdrop {
+  background: rgba(2, 5, 14, 0.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: all;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STAT CARD EXPANDED MODAL (same glass)
+   ═══════════════════════════════════════════════════════════ */
+
+.stat-modal-glass {
+  background: rgba(18, 28, 44, 0.52);
+  backdrop-filter: blur(26px) saturate(160%) brightness(1.12);
+  -webkit-backdrop-filter: blur(26px) saturate(160%) brightness(1.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 32px 80px -8px rgba(0, 0, 0, 0.75),
+    0 0 48px -10px rgba(6, 182, 212, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Solid-background fallback when backdrop-filter is unsupported */
+@supports not (backdrop-filter: blur(1px)) {
+  .tile-modal-glass,
+  .stat-modal-glass {
+    background: rgba(14, 22, 36, 0.97);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SPATIAL 3D WORKSPACE
+   ═══════════════════════════════════════════════════════════ */
+
+.perspective-spatial {
+  perspective: 1200px;
+  perspective-origin: 50% 42%;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.spatial-grid-floor {
+  background-size: 42px 42px;
+  background-image: 
+    linear-gradient(to right, rgba(6, 182, 212, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(6, 182, 212, 0.12) 1px, transparent 1px);
+  transform: rotateX(54deg) translateZ(-60px);
+  transform-origin: center center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOLOGRAPHIC EFFECTS
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes holographicBeamPulse {
+  0%, 100% {
+    opacity: 0.45;
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.4));
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.7));
+  }
+}
+
+.holographic-beam {
+  background: linear-gradient(to top, rgba(6, 182, 212, 0.7) 0%, rgba(34, 211, 238, 0.25) 60%, transparent 100%);
+  clip-path: polygon(35% 100%, 65% 100%, 100% 0%, 0% 0%);
+  animation: holographicBeamPulse 3.5s ease-in-out infinite;
+}
+
+.holographic-cylinder {
+  background: radial-gradient(circle at 50% 30%, #22d3ee 0%, #0891b2 60%, #0e3b5e 100%);
+  box-shadow: 
+    0 0 25px 2px rgba(6, 182, 212, 0.6),
+    0 10px 20px -2px rgba(0, 0, 0, 0.8);
+}
+
+.holographic-ripple {
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 15px 0 rgba(6, 182, 212, 0.35);
+  animation: rippleOut 3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes rippleOut {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIQUID GLASS MODAL ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+/*
+  These keyframe names match the ANIM_* constants in TileExpandModal.tsx.
+  Do not rename without updating both files.
+*/
+
+/* ─ Panel open: scale up from slightly smaller, rise, fade in ───────── */
+@keyframes lgPanelIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(24px);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+/* ─ Panel close: scale down, fall slightly, fade out ──────────── */
+@keyframes lgPanelOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+    filter: blur(3px);
+  }
+}
+
+/* ─ Backdrop open: fade in with blur ──────────────────────── */
+@keyframes lgBgIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ─ Backdrop close: fade out ────────────────────────────── */
+@keyframes lgBgOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ─ Primary names used by TileExpandModal.tsx ─────────────── */
+@keyframes lgModalIn {
+  0%   { opacity: 0; transform: scale(0.90) translateY(22px); filter: blur(6px); }
+  55%  { opacity: 1; filter: blur(0px); }
+  100% { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0px); }
+}
+@keyframes lgModalOut {
+  0%   { opacity: 1; transform: scale(1)    translateY(0); }
+  100% { opacity: 0; transform: scale(0.94) translateY(12px); }
+}
+
+/* ─ Legacy tile expand classes (kept for backward compat) ────── */
+@keyframes tileExpand {
+  0%   { opacity: 0; transform: scale(0.90) translateY(22px); filter: blur(6px); }
+  100% { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0px); }
+}
+@keyframes tileCollapse {
+  0%   { opacity: 1; transform: scale(1)    translateY(0); }
+  100% { opacity: 0; transform: scale(0.94) translateY(12px); }
+}
+@keyframes backdropIn  { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes backdropOut { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+.tile-expand-enter {
+  animation: lgModalIn 0.40s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.backdrop-enter {
+  animation: lgBgIn 0.30s ease-out both;
+}
+
+/* ─ Reduced-motion: skip transforms, keep fade ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes lgModalIn   { 0% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes lgModalOut  { 0% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes lgPanelIn   { 0% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes lgPanelOut  { 0% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes lgBgIn      { 0% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes lgBgOut     { 0% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes tileExpand    { 0% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes tileCollapse  { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+  .tile-modal-is-entering .tile-modal-panel,
+  .tile-modal-is-closing  .tile-modal-panel,
+  .tile-expand-enter,
+  .backdrop-enter {
+    animation-duration: 0.15s !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOW UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+
+.glow-cyan {
+  box-shadow: 0 0 30px -5px rgba(6, 182, 212, 0.42);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.42);
+}
+
+.glow-rose {
+  box-shadow: 0 0 30px -5px rgba(244, 63, 94, 0.42);
+}
+
+.glow-amber {
+  box-shadow: 0 0 30px -5px rgba(245, 158, 11, 0.42);
+}
+
+.glow-violet {
+  box-shadow: 0 0 30px -5px rgba(139, 92, 246, 0.42);
+}
+
+/* Accent glow classes per color for StatCards */
+.glow-accent-cyan   { box-shadow: 0 0 20px -4px rgba(6, 182, 212, 0.35); }
+.glow-accent-emerald{ box-shadow: 0 0 20px -4px rgba(16, 185, 129, 0.35); }
+.glow-accent-rose   { box-shadow: 0 0 20px -4px rgba(244, 63, 94, 0.35); }
+.glow-accent-violet { box-shadow: 0 0 20px -4px rgba(139, 92, 246, 0.35); }
+.glow-accent-amber  { box-shadow: 0 0 20px -4px rgba(245, 158, 11, 0.35); }
+
+/* ═══════════════════════════════════════════════════════════
+   GRACEFUL FALLBACK — solid dark when backdrop-filter unsupported
+   ═══════════════════════════════════════════════════════════ */
+
+@supports not (backdrop-filter: blur(16px)) {
+  .liquid-glass,
+  .liquid-glass-interactive,
+  .liquid-glass-active,
+  .spatial-glass-tile,
+  .tile-modal-glass,
+  .stat-modal-glass {
+    background: #080e1d;
+  }
+  .tile-modal-backdrop {
+    background: rgba(2, 4, 12, 0.92);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REDUCED MOTION — Respect user preference
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .liquid-glass-interactive:hover,
+  .spatial-glass-tile:hover {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CUSTOM SCROLLBARS
+   ═══════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(4, 6, 15, 0.7); }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.5); }
+
+/* ═══════════════════════════════════════════════════════════
+   REACT FLOW OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+
+.react-flow__attribution { display: none !important; }
+
+.react-flow__edge-path {
+  stroke-width: 2;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #22d3ee !important;
+  stroke-width: 3 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOCUS STATES — Keyboard navigation visibility
+   ═══════════════════════════════════════════════════════════ */
+
+.tile-focusable:focus-visible {
+  outline: 2px solid rgba(6, 182, 212, 0.8);
+  outline-offset: 2px;
+  border-radius: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INLINE SPECULAR SHEEN HELPER
+   ═══════════════════════════════════════════════════════════ */
+
+.glass-sheen-top {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(34, 211, 238, 0.35), transparent);
+  pointer-events: none;
+}
+
+.glass-sheen-top-strong {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(34, 211, 238, 0.55), transparent);
+  pointer-events: none;
+}
+
+/* Left inner edge highlight */
+.glass-edge-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent, rgba(255,255,255,0.04));
+  pointer-events: none;
+}

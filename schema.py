@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 # Node Labels
 NODE_LABELS = [
     "Person",
+    "User",
     "Organization",
     "Project",
     "System",
@@ -16,6 +17,10 @@ NODE_LABELS = [
     "Document",
     "Task",
     "Session",
+    "Conversation",
+    "Message",
+    "Fact",
+    "Entity",
     "Evidence",
     "Decision",
     "Investigation",
@@ -38,7 +43,12 @@ RELATIONSHIP_TYPES = [
     "LED_TO",
     "DISCOVERED_IN",
     "REVISITS",
-    "DERIVED_FROM"
+    "DERIVED_FROM",
+    "HAS_CONVERSATION",
+    "HAS_MESSAGE",
+    "HAS_FACT",
+    "MENTIONS",
+    "PARTICIPATED_IN"
 ]
 
 # Epistemic Categories for Explainability
@@ -78,8 +88,13 @@ def initialize_schema_indices(graph) -> List[Dict[str, Any]]:
         ("Event", "id"),
         ("Record", "id"),
         ("Person", "id"),
+        ("User", "id"),
         ("Project", "id"),
         ("Session", "id"),
+        ("Conversation", "id"),
+        ("Message", "id"),
+        ("Fact", "id"),
+        ("Entity", "id"),
         ("Evidence", "id"),
         ("Finding", "id"),
         ("Investigation", "id"),
