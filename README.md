@@ -33,37 +33,36 @@
 ## Architecture Overview
 
 ```mermaid
-graph TD
-    subgraph ClientLayers [Interactive Client Applications]
-        WebPortal["Next.js 16 Glassmorphic Portal (localhost:3000)"]
+flowchart TD
+    subgraph ClientLayers ["Interactive Client Applications"]
+        WebPortal["Next.js 16 Glassmorphic Portal (Port 3000)"]
         VoiceOrb["Holographic Voice Assistant & Web Speech API"]
         GraphExplorer["React Flow Graph Topology Visualizer"]
-        StreamlitApp["Streamlit Incident & Cascade Console (localhost:8501)"]
+        StreamlitApp["Streamlit Incident & Cascade Console (Port 8501)"]
     end
 
-    subgraph Gateway [FastAPI Gateway & REST Service (Port 8000)]
-        API_Health["GET /api/health & /api/health/database"]
+    subgraph Gateway ["FastAPI Gateway & REST Service (Port 8000)"]
+        API_Health["GET /api/health"]
         API_Chat["POST /api/chat"]
         API_Voice["POST /api/voice/transcript"]
-        API_Memory["GET / POST / DELETE /api/memory"]
-        API_Graph["GET /api/graph & /api/graph/subgraph"]
+        API_Memory["GET, POST, DELETE /api/memory"]
+        API_Graph["GET /api/graph"]
         API_Sim["POST /api/simulation/whatif"]
         API_Debate["POST /api/debate"]
     end
 
-    subgraph ReasoningLayer [ThreatNexus Autonomous Engine]
+    subgraph ReasoningLayer ["ThreatNexus Autonomous Engine"]
         Router["Deterministic Intent Router"]
         DetEngine["Deterministic openCypher Query Planner"]
         OllamaBridge["Local Ollama Offline LLM (Optional)"]
         Explainability["7-Part Epistemic Evidence Engine"]
     end
 
-    subgraph DatabaseLayer [FalkorDB Graph Persistence (Port 6379)]
-        Falkor[(FalkorDB Instance)]
-        Nodes_Entities[":System, :Software, :Record Nodes"]
-        Nodes_Incidents[":Event, :Incident, :Timeline Nodes"]
-        Nodes_Memory[":Fact, :Session, :Evidence Nodes"]
-        Edges_Graph["-[:AFFECTS | :LED_TO | :USES | :REVISITS]->"]
+    subgraph DatabaseLayer ["FalkorDB Graph Persistence (Port 6379)"]
+        Falkor[("FalkorDB Graph Engine")]
+        Nodes_Entities["System, Software, and Record Nodes"]
+        Nodes_Incidents["Event, Incident, and Timeline Nodes"]
+        Nodes_Memory["Fact, Session, and Evidence Nodes"]
     end
 
     WebPortal --> Gateway
@@ -72,10 +71,9 @@ graph TD
     Gateway --> ReasoningLayer
     ReasoningLayer --> DatabaseLayer
     DatabaseLayer --> Falkor
-    Falkor --- Nodes_Entities
-    Falkor --- Nodes_Incidents
-    Falkor --- Nodes_Memory
-    Falkor --- Edges_Graph
+    Falkor --> Nodes_Entities
+    Falkor --> Nodes_Incidents
+    Falkor --> Nodes_Memory
 ```
 
 ---
