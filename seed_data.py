@@ -183,5 +183,8 @@ def reset_scenario_data(scenario_name: str) -> Dict[str, Any]:
     }
 
 if __name__ == "__main__":
-    result = seed_database(reset_existing=True)
-    print("Seed execution finished:", result)
+    try:
+        result = seed_database(reset_existing=True)
+        print("Seed execution finished:", result)
+    except Exception as e:
+        print(f"Warning: FalkorDB seeding skipped or failed on startup ({e}). Continuing startup...")

@@ -31,20 +31,11 @@ app = FastAPI(
     version=config.APP_VERSION
 )
 
-# Enable CORS for Next.js, Vite, and production origins
+# Enable CORS for Next.js, Vite, Railway, and production origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "*"
-    ],
+    allow_origins=["*"],
+    allow_origin_regex=r"^https?://.*$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,6 +43,19 @@ app.add_middleware(
 
 # Mount API v1 router for Next.js frontend integration
 app.include_router(api_v1_router)
+
+@app.on_event("startup")
+def startup_event():
+    """Attempts background database seeding without blocking server startup."""
+    import threading
+    def background_seed():
+        try:
+            from seed_data import seed_database
+            seed_database(reset_existing=False)
+            print("[Startup] FalkorDB seed verification complete.")
+        except Exception as e:
+            print(f"[Startup] FalkorDB seed deferred: {e}")
+    threading.Thread(target=background_seed, daemon=True).start()
 
 @app.get("/health")
 def get_root_health():

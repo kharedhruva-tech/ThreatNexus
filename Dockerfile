@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8000
 
 ENV PORT=8000
-CMD python seed_data.py && uvicorn server:app --host 0.0.0.0 --port ${PORT}
+CMD ["sh", "-c", "python seed_data.py || true; uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000}"]
