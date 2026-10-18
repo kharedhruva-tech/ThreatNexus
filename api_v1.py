@@ -695,6 +695,8 @@ def run_v1_investigation(req: InvestigationRequestPayload):
     if is_e102:
         return {
             "id": "INV-2026-002",
+            "request": req.model_dump(),
+            "targetEntity": next(entity for entity in CYBER_ENTITIES if entity["id"] == "E-102"),
             "status": "SUCCESS",
             "riskScore": 96,
             "riskLevel": "CRITICAL",
@@ -807,8 +809,8 @@ def run_v1_investigation(req: InvestigationRequestPayload):
                 }
             ],
             "subgraph": {
-                "nodes": [n for n in CYBER_ENTITIES if n["id"] in ["E-101", "E-102", "E-105", "E-107"]],
-                "edges": [e for e in CYBER_RELATIONSHIPS if e["id"] in ["R-201", "R-205", "R-209", "R-210"]],
+                "entities": [n for n in CYBER_ENTITIES if n["id"] in ["E-101", "E-102", "E-105", "E-107"]],
+                "relationships": [e for e in CYBER_RELATIONSHIPS if e["id"] in ["R-201", "R-205", "R-209", "R-210"]],
                 "highlightPath": ["E-107", "E-101", "E-105", "E-102"]
             },
             "crossSessionMemory": {
@@ -828,12 +830,15 @@ def run_v1_investigation(req: InvestigationRequestPayload):
                 "unknowns": 0
             },
             "completedAt": now,
-            "executionTimeMs": 1300
+            "executionTimeMs": 1300,
+            "isSimulated": False
         }
 
     # Default / E-101 Investigation
     return {
         "id": "INV-2026-001",
+        "request": req.model_dump(),
+        "targetEntity": next(entity for entity in CYBER_ENTITIES if entity["id"] == "E-101"),
         "status": "SUCCESS",
         "riskScore": 92,
         "riskLevel": "CRITICAL",
@@ -914,8 +919,8 @@ def run_v1_investigation(req: InvestigationRequestPayload):
             }
         ],
         "subgraph": {
-            "nodes": [n for n in CYBER_ENTITIES if n["id"] in ["E-101", "E-103", "E-104", "E-105", "E-106", "E-107"]],
-            "edges": [e for e in CYBER_RELATIONSHIPS if e["id"] in ["R-201", "R-202", "R-203", "R-204", "R-205"]],
+            "entities": [n for n in CYBER_ENTITIES if n["id"] in ["E-101", "E-103", "E-104", "E-105", "E-106", "E-107"]],
+            "relationships": [e for e in CYBER_RELATIONSHIPS if e["id"] in ["R-201", "R-202", "R-203", "R-204", "R-205"]],
             "highlightPath": ["E-107", "E-101", "E-106", "E-103", "E-104"]
         },
         "crossSessionMemory": None,
@@ -926,7 +931,8 @@ def run_v1_investigation(req: InvestigationRequestPayload):
             "unknowns": 0
         },
         "completedAt": now,
-        "executionTimeMs": 810
+        "executionTimeMs": 810,
+        "isSimulated": False
     }
 
 # --- 5. SESSIONS & PERSISTENT MEMORY ---
