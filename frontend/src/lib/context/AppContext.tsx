@@ -99,7 +99,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       const health = await apiClient.getHealth();
       const falkorService = health.services?.find((s) => s.key === 'falkordb');
-      const isConnected = falkorService?.status === 'OPERATIONAL';
+      const isConnected = falkorService?.status === 'OPERATIONAL' || health.overallStatus === 'OPERATIONAL' || (health as any).database_connected === true;
       setFalkorDbStatus({
         connected: isConnected,
         endpoint: falkorService?.endpoint || '127.0.0.1:6379',

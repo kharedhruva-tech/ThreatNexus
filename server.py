@@ -59,14 +59,13 @@ def startup_event():
 
 @app.get("/health")
 def get_root_health():
-    """Root health check for ping tester and uptime monitors."""
-    db_healthy, _ = db_manager.check_health()
-    return {
-        "status": "OPERATIONAL" if db_healthy else "DEGRADED",
-        "service": config.APP_NAME,
-        "database_connected": db_healthy,
-        "timestamp": datetime.now(timezone.utc).isoformat()
-    }
+    """Root health check matching Frontend SystemHealth contract."""
+    from api_v1 import get_v1_health
+    res = get_v1_health()
+    res["database_connected"] = (res.get("overallStatus") == "OPERATIONAL")
+    res["service"] = config.APP_NAME
+    res["status"] = res.get("overallStatus", "OPERATIONAL")
+    return res
 
 # --- REQUEST MODELS ---
 class InvestigationRequest(BaseModel):

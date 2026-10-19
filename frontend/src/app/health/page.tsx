@@ -84,8 +84,14 @@ export default function HealthPage() {
   }, [isDemoMode, backendUrl]);
 
   const handleSaveUrl = () => {
-    setBackendUrl(inputUrl.trim());
-    setPingStatus({ message: `Updated backend target URL to ${inputUrl.trim()}`, isSuccess: true });
+    let url = inputUrl.trim().replace(/\/+$/, '');
+    if (url && !url.endsWith('/api/v1')) {
+      url += '/api/v1';
+    }
+    setBackendUrl(url);
+    setInputUrl(url);
+    setPingStatus({ message: `Updated backend target URL to ${url}`, isSuccess: true });
+    setTimeout(() => fetchHealth(), 100);
   };
 
   const handleTestPing = async () => {

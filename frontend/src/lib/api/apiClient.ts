@@ -32,8 +32,13 @@ export class ContextGraphApiClient {
   private config: ApiClientConfig;
 
   constructor(config?: Partial<ApiClientConfig>) {
+    let defaultUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+    defaultUrl = defaultUrl.trim().replace(/\/+$/, '');
+    if (defaultUrl && !defaultUrl.endsWith('/api/v1')) {
+      defaultUrl += '/api/v1';
+    }
     this.config = {
-      baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+      baseUrl: defaultUrl,
       isDemoMode: false,
       timeoutMs: 12000,
       ...config,
@@ -48,8 +53,12 @@ export class ContextGraphApiClient {
       } else {
         this.config.isDemoMode = false;
       }
-      const savedBaseUrl = localStorage.getItem('contextgraph_api_url');
+      let savedBaseUrl = localStorage.getItem('contextgraph_api_url');
       if (savedBaseUrl) {
+        savedBaseUrl = savedBaseUrl.trim().replace(/\/+$/, '');
+        if (savedBaseUrl && !savedBaseUrl.endsWith('/api/v1')) {
+          savedBaseUrl += '/api/v1';
+        }
         this.config.baseUrl = savedBaseUrl;
       }
     }
@@ -71,9 +80,13 @@ export class ContextGraphApiClient {
   }
 
   setBaseUrl(url: string) {
-    this.config.baseUrl = url;
+    let normalized = url.trim().replace(/\/+$/, '');
+    if (normalized && !normalized.endsWith('/api/v1')) {
+      normalized += '/api/v1';
+    }
+    this.config.baseUrl = normalized;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('contextgraph_api_url', url);
+      localStorage.setItem('contextgraph_api_url', normalized);
     }
   }
 
