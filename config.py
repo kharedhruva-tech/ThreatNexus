@@ -45,9 +45,9 @@ class AppConfig:
         if password:
             password = password.strip().strip("'\"")
 
-        # In modern Redis / FalkorDB ACL, default username is 'default' when a password is used
+        # In FalkorDB Cloud ACL, default username is 'falkordb' (or fallback to 'default')
         if password and not username:
-            username = "default"
+            username = "falkordb"
 
         return host, port, username, password, falkordb_url
 
