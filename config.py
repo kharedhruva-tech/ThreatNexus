@@ -32,6 +32,29 @@ class AppConfig:
             except Exception:
                 pass
 
+        # Clean and sanitize strings
+        if host:
+            host = host.strip().strip("'\"")
+            if "://" in host:
+                host = host.split("://")[-1]
+            if ":" in host and not host.startswith("["):
+                parts = host.split(":")
+                host = parts[0]
+                if not port_raw and len(parts) > 1:
+                    port_raw = parts[1]
+
+        if port_raw:
+            port_raw = str(port_raw).strip().strip("'\"")
+
+        if username:
+            username = username.strip().strip("'\"")
+
+        if password:
+            password = password.strip().strip("'\"")
+
+        if falkordb_url:
+            falkordb_url = falkordb_url.strip().strip("'\"")
+
         if not host:
             # Check if running in Railway private network
             if os.getenv("RAILWAY_ENVIRONMENT"):
@@ -40,10 +63,6 @@ class AppConfig:
                 host = "127.0.0.1"
 
         port = int(port_raw) if port_raw else 6379
-
-        # Clean quotes and whitespace from password
-        if password:
-            password = password.strip().strip("'\"")
 
         # In FalkorDB Cloud ACL, default username is 'falkordb' (or fallback to 'default')
         if password and not username:
