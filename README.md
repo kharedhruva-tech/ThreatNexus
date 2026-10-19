@@ -10,7 +10,7 @@
 
 <br />
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Open_App-00C853?style=for-the-badge)](https://diplomatic-integrity-production-5695.up.railway.app/)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Open_App-00C853?style=for-the-badge)](https://threat-nexus-three.vercel.app/)
 [![Tests](https://img.shields.io/badge/pytest-47%20passed-brightgreen?style=for-the-badge&logo=pytest)](tests)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
 [![FalkorDB](https://img.shields.io/badge/Database-FalkorDB-e63946?style=for-the-badge&logo=redis)](https://falkordb.com)
@@ -19,7 +19,7 @@
 [![Docker](https://img.shields.io/badge/Deploy-Docker%20Ready-2496ED?style=for-the-badge&logo=docker)](Dockerfile)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-**[🌐 Live Demo](https://diplomatic-integrity-production-5695.up.railway.app/)** ·
+**[🌐 Live Demo](https://threat-nexus-three.vercel.app/)** ·
 **[📖 Quickstart](#-quickstart)** ·
 **[🏗 Architecture](#-architecture)** ·
 **[🔌 API Reference](#-rest-api-reference)** ·
@@ -33,9 +33,9 @@
 
 Try ThreatNexus without installing anything:
 
-> ### 👉 [**https://diplomatic-integrity-production-5695.up.railway.app/**](https://diplomatic-integrity-production-5695.up.railway.app/)
+> ### 👉 [**https://threat-nexus-three.vercel.app/**](https://threat-nexus-three.vercel.app/)
 
-Hosted on [Railway](https://railway.app). Explore the graph explorer, incident timelines, chaos simulator, and the voice assistant directly in your browser.
+Hosted on [Vercel](https://vercel.com). Explore the graph explorer, incident timelines, chaos simulator, and the voice assistant directly in your browser.
 
 ---
 
@@ -368,6 +368,6 @@ Distributed under the [MIT License](LICENSE).
 
 **⭐ If you find ThreatNexus useful, please consider giving it a star!**
 
-[🌐 Live Demo](https://diplomatic-integrity-production-5695.up.railway.app/) · [🐛 Report Bug](https://github.com/kharedhruva-tech/ai-agent/issues) · [💡 Request Feature](https://github.com/kharedhruva-tech/ai-agent/issues)
+[🌐 Live Demo](https://threat-nexus-three.vercel.app/) · [🐛 Report Bug](https://github.com/kharedhruva-tech/ai-agent/issues) · [💡 Request Feature](https://github.com/kharedhruva-tech/ai-agent/issues)
 
 </div>
