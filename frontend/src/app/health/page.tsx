@@ -143,6 +143,12 @@ export default function HealthPage() {
             DOWN / UNREACHABLE
           </Badge>
         );
+      default:
+        return (
+          <Badge variant="amber" size="sm" dot>
+            {status || 'UNKNOWN'}
+          </Badge>
+        );
     }
   };
 
@@ -259,7 +265,7 @@ export default function HealthPage() {
         </GlassCard>
 
         {/* Services Status Cards */}
-        {healthData && (
+        {healthData?.services && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {healthData.services.map((service) => (
               <GlassCard
