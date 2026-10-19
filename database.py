@@ -15,34 +15,43 @@ class DatabaseManager:
         self,
         host: str = config.FALKORDB_HOST,
         port: int = config.FALKORDB_PORT,
+        username: Optional[str] = config.FALKORDB_USERNAME,
+        password: Optional[str] = config.FALKORDB_PASSWORD,
+        url: Optional[str] = config.FALKORDB_URL,
         graph_name: str = config.GRAPH_NAME
     ):
         self.host = host
         self.port = port
+        self.username = username
+        self.password = password
+        self.url = url
         self.graph_name = graph_name
         self._db: Optional[FalkorDB] = None
         self._graph = None
+
+    def _create_instance(self) -> FalkorDB:
+        """Instantiates a fresh FalkorDB client with URL or host/port/credentials."""
+        if self.url:
+            return FalkorDB.from_url(self.url)
+        return FalkorDB(
+            host=self.host,
+            port=self.port,
+            username=self.username if self.password else None,
+            password=self.password
+        )
 
     def get_client(self) -> FalkorDB:
         """Returns the official FalkorDB client instance or raises DatabaseConnectionError."""
         try:
             if self._db is None:
-                self._db = FalkorDB(
-                    host=self.host,
-                    port=self.port,
-                    password=config.FALKORDB_PASSWORD
-                )
+                self._db = self._create_instance()
             else:
                 # Validate existing connection health
                 try:
                     if hasattr(self._db, "connection") and self._db.connection:
                         self._db.connection.ping()
                 except Exception:
-                    self._db = FalkorDB(
-                        host=self.host,
-                        port=self.port,
-                        password=config.FALKORDB_PASSWORD
-                    )
+                    self._db = self._create_instance()
             return self._db
         except Exception as e:
             raise DatabaseConnectionError(
