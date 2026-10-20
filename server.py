@@ -57,7 +57,7 @@ def startup_event():
             print(f"[Startup] FalkorDB seed deferred: {e}")
     threading.Thread(target=background_seed, daemon=True).start()
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def get_root_health():
     """Root health check matching Frontend SystemHealth contract."""
     from api_v1 import get_v1_health
@@ -104,7 +104,7 @@ class PostMortemRequest(BaseModel):
 
 # --- HEALTH & CONFIGURATION ENDPOINTS ---
 
-@app.get("/api/health")
+@app.api_route("/api/health", methods=["GET", "HEAD"])
 def get_health():
     """Returns general service health, agent mode, and FalkorDB connectivity."""
     db_healthy, diag = db_manager.check_health()
@@ -119,7 +119,7 @@ def get_health():
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
-@app.get("/api/health/database")
+@app.api_route("/api/health/database", methods=["GET", "HEAD"])
 def get_database_health():
     """Returns honest FalkorDB connectivity and metrics."""
     healthy, diag = db_manager.check_health()

@@ -99,7 +99,8 @@ export default function HealthPage() {
     setPingStatus(null);
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 2500);
+      const pingTimeout = inputUrl.includes('onrender.com') || inputUrl.startsWith('https://') ? 30000 : 8000;
+      const id = setTimeout(() => controller.abort(), pingTimeout);
       const res = await fetch(`${inputUrl.trim()}/health`, { signal: controller.signal });
       clearTimeout(id);
       if (res.ok) {

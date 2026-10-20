@@ -28,6 +28,17 @@ export interface ApiClientConfig {
   timeoutMs: number;
 }
 
+function resolveTimeout(url: string, overrideMs?: number): number {
+  if (overrideMs && overrideMs > 0) return overrideMs;
+  if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_TIMEOUT_MS) {
+    const parsed = parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT_MS, 10);
+    if (!isNaN(parsed) && parsed > 0) return parsed;
+  }
+  // Render and other free cloud hosts sleep after inactivity and need 40-60s to wake up
+  const isCloudHost = url.includes('onrender.com') || url.includes('railway.app') || url.includes('fly.dev') || url.startsWith('https://');
+  return isCloudHost ? 60000 : 30000;
+}
+
 export class ContextGraphApiClient {
   private config: ApiClientConfig;
 
@@ -40,7 +51,7 @@ export class ContextGraphApiClient {
     this.config = {
       baseUrl: defaultUrl,
       isDemoMode: false,
-      timeoutMs: 12000,
+      timeoutMs: resolveTimeout(defaultUrl, config?.timeoutMs),
       ...config,
     };
   }
@@ -60,6 +71,7 @@ export class ContextGraphApiClient {
           savedBaseUrl += '/api/v1';
         }
         this.config.baseUrl = savedBaseUrl;
+        this.config.timeoutMs = resolveTimeout(savedBaseUrl);
       }
     }
   }
@@ -85,6 +97,7 @@ export class ContextGraphApiClient {
       normalized += '/api/v1';
     }
     this.config.baseUrl = normalized;
+    this.config.timeoutMs = resolveTimeout(normalized);
     if (typeof window !== 'undefined') {
       localStorage.setItem('contextgraph_api_url', normalized);
     }
@@ -131,8 +144,13 @@ export class ContextGraphApiClient {
       if (err instanceof ApiError) throw err;
 
       const isAbort = err.name === 'AbortError';
+      const isRender = fullUrl.includes('onrender.com');
       const msg = isAbort
-        ? `Request timed out after ${this.config.timeoutMs}ms connecting to ${fullUrl}`
+        ? `Request timed out after ${this.config.timeoutMs}ms connecting to ${fullUrl}.${
+            isRender
+              ? ' Note: Render free tier services sleep after inactivity and require 40-60s to wake up on the first request.'
+              : ''
+          }`
         : `Network Error: Could not reach Python backend at ${fullUrl}. Ensure your backend server is running and CORS is enabled.`;
 
       throw new ApiError(msg, endpoint, undefined, true);

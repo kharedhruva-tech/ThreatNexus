@@ -443,7 +443,7 @@ CYBER_RELATIONSHIPS = [
 
 # --- 1. HEALTH & DIAGNOSTICS ---
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 def get_v1_health():
     """Live System Health report matching Frontend SystemHealth contract."""
     db_healthy, diag = db_manager.check_health()
